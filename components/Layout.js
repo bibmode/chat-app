@@ -1,25 +1,36 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import Drawer from "./Drawer";
 
 export const AppContext = createContext("");
+
+const getWindowWidth = () => {
+  const { innerWidth: width } = window;
+
+  console.log(width);
+  return width >= 1024;
+};
 
 const Layout = (props) => {
   const [drawer, setDrawer] = useState(true);
   const [drawerToggle, setDrawerToggle] = useState(false);
 
+  useEffect(() => {
+    getWindowWidth() ? setDrawer(true) : setDrawer(false);
+  }, []);
+
   return (
-    <>
-      {drawer && (
-        <Drawer
-          drawerToggle={drawerToggle}
-          setDrawerToggle={setDrawerToggle}
-          setDrawer={setDrawer}
-        />
-      )}
+    <div className="lg:flex">
       <AppContext.Provider value={{ drawer, setDrawer }}>
-        <main className="font-Noto">{props.children}</main>
+        {drawer && (
+          <Drawer
+            drawerToggle={drawerToggle}
+            setDrawerToggle={setDrawerToggle}
+            setDrawer={setDrawer}
+          />
+        )}
+        <main className="font-Noto w-full">{props.children}</main>
       </AppContext.Provider>
-    </>
+    </div>
   );
 };
 

@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import Image from "next/image";
+import ProfileBar from "./ProfileBar";
 
 const channels = [
   "Front-end developers",
@@ -26,9 +27,10 @@ const Drawer = ({ drawerToggle, setDrawerToggle, setDrawer }) => {
   const closeDrawer = () => {
     setDrawer(false);
   };
+
   return (
     <>
-      <div className="fixed px-5 z-50 w-5/6 h-screen bg-zinc-900">
+      <div className="fixed lg:relative lg:static px-5 z-50 w-5/6 max-w-[338px] h-screen bg-zinc-900">
         {drawerToggle ? (
           <>
             {/* channels */}
@@ -40,7 +42,7 @@ const Drawer = ({ drawerToggle, setDrawerToggle, setDrawer }) => {
             </div>
 
             {/* search bar */}
-            <div className="bg-gray-700 w-full flex items-center p-3 mt-4 mb-6 rounded-lg ">
+            <div className="bg-zinc-600/50 w-full flex items-center p-3 mt-4 mb-6 rounded-lg ">
               <button className="text-white">
                 <Icon icon="fa-solid:search" />
               </button>
@@ -69,24 +71,7 @@ const Drawer = ({ drawerToggle, setDrawerToggle, setDrawer }) => {
             ))}
 
             {/* profile bar */}
-            <div className="absolute flex items-center p-4 bottom-0 left-0 bg-stone-900 w-full">
-              <div className="relative w-10 h-10 rounded-lg overflow-hidden">
-                <Image
-                  src="https://i.pinimg.com/564x/a0/81/55/a08155427a44e000276681a166c65337.jpg"
-                  alt="profile"
-                  layout="fill"
-                  objectFit="cover"
-                />
-              </div>
-
-              <h4 className="ml-5 text-gray-50/80 text-md font-semibold">
-                Genevieve Navales
-              </h4>
-
-              <button className="text-gray-50/80 text-xl ml-auto">
-                <Icon icon="charm:chevron-down" />
-              </button>
-            </div>
+            <ProfileBar />
           </>
         ) : (
           <>
@@ -123,6 +108,9 @@ const Drawer = ({ drawerToggle, setDrawerToggle, setDrawer }) => {
                 <h3>{members}</h3>
               </div>
             ))}
+
+            {/* profile bar */}
+            <ProfileBar />
           </>
         )}
       </div>
@@ -130,7 +118,7 @@ const Drawer = ({ drawerToggle, setDrawerToggle, setDrawer }) => {
       {/* underlay */}
       <div
         onClick={closeDrawer}
-        className=" fixed top-0 z-40 w-screen h-screen bg-gray-900/60"
+        className="fixed top-0 z-40 w-screen h-screen bg-gray-900/60 lg:hidden"
       ></div>
     </>
   );
