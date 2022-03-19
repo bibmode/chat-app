@@ -1,13 +1,21 @@
 import { createContext, useState } from "react";
 import Drawer from "./Drawer";
 
-const AppContext = createContext(null);
+export const AppContext = createContext("");
 
 const Layout = (props) => {
-  const [drawer, setDrawer] = useState(false);
+  const [drawer, setDrawer] = useState(true);
+  const [drawerToggle, setDrawerToggle] = useState(false);
+
   return (
     <>
-      {drawer && <Drawer />}
+      {drawer && (
+        <Drawer
+          drawerToggle={drawerToggle}
+          setDrawerToggle={setDrawerToggle}
+          setDrawer={setDrawer}
+        />
+      )}
       <AppContext.Provider value={{ drawer, setDrawer }}>
         <main className="font-Noto">{props.children}</main>
       </AppContext.Provider>
