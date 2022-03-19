@@ -62,8 +62,13 @@ const Drawer = ({ drawerToggle, setDrawerToggle, setDrawer }) => {
                 className="flex items-center mb-4 text-gray-50/80 uppercase text-md font-semibold w-full text-left"
                 onClick={handleToggle}
               >
-                <div className="w-10 h-10 bg-gray-800 grid place-items-center rounded-lg mr-4 text-white">
-                  <p>{channel[0]}</p>
+                <div className="relative w-10 h-10 bg-gray-800 grid place-items-center rounded-lg mr-4 text-white overflow-hidden">
+                  <Image
+                    src="https://i.pinimg.com/564x/a0/81/55/a08155427a44e000276681a166c65337.jpg"
+                    alt="profile"
+                    layout="fill"
+                    objectFit="cover"
+                  />
                 </div>
 
                 <h3 className="grow inline-block">{channel}</h3>

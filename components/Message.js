@@ -1,9 +1,16 @@
+import Image from "next/image";
+
 const Message = ({ name, date, message }) => {
   return (
     <div className="py-4 grid grid-cols-[min-content_repeat(7,_1fr)] gap-2 max-h-fit">
       {/* image */}
-      <div className="bg-white grid row-span-2 h-9 w-9 rounded-md place-content-center">
-        {name[0].toUpperCase()}
+      <div className="relative bg-white grid row-span-2 h-9 w-9 rounded-md overflow-hidden place-content-center">
+        <Image
+          src="https://i.pinimg.com/564x/a0/81/55/a08155427a44e000276681a166c65337.jpg"
+          alt="profile"
+          layout="fill"
+          objectFit="cover"
+        />
       </div>
 
       {/* details */}
