@@ -11,8 +11,8 @@ const getWindowWidth = () => {
 
 const Layout = (props) => {
   const [drawer, setDrawer] = useState(false);
-  const [drawerToggle, setDrawerToggle] = useState(false);
-  const [modal, setModal] = useState(true);
+  const [drawerToggle, setDrawerToggle] = useState(true);
+  const [modal, setModal] = useState(false);
 
   useEffect(() => {
     getWindowWidth() ? setDrawer(true) : setDrawer(false);
