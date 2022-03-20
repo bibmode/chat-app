@@ -6,7 +6,6 @@ export const AppContext = createContext("");
 const getWindowWidth = () => {
   const { innerWidth: width } = window;
 
-  console.log(width);
   return width >= 1024;
 };
 

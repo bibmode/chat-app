@@ -6,6 +6,26 @@ import { messages } from "../data/messages";
 import { AppContext } from "../components/Layout";
 import Drawer from "../components/Drawer";
 import ChannelModal from "../components/ChannelModal";
+import { getSession } from "next-auth/react";
+
+export const getServerSideProps = async (ctx) => {
+  const session = await getSession(ctx);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      data: null,
+    },
+  };
+};
 
 export default function ChannelPage() {
   const { drawer, setDrawer, drawerToggle, setDrawerToggle, modal, setModal } =

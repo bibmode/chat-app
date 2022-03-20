@@ -1,7 +1,12 @@
 import { Icon } from "@iconify/react";
+import { signOut } from "next-auth/react";
 import Image from "next/image";
 
 const ProfileBar = () => {
+  const signOutApp = () => {
+    signOut({ callbackUrl: `${process.env.NEXTAUTH_URL}/` });
+  };
+
   return (
     <div className="absolute flex items-center p-4 bottom-0 left-0 bg-stone-900 w-full">
       <div className="relative w-10 h-10 rounded-lg overflow-hidden">
@@ -17,7 +22,7 @@ const ProfileBar = () => {
         Genevieve Navales
       </h4>
 
-      <button className="text-gray-50/80 text-xl ml-auto">
+      <button onClick={signOutApp} className="text-gray-50/80 text-xl ml-auto">
         <Icon icon="icon-park-outline:logout" />
       </button>
     </div>

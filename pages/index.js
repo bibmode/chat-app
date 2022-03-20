@@ -1,8 +1,31 @@
 import { Icon } from "@iconify/react";
 import Head from "next/head";
-import Image from "next/image";
+import { getSession, signIn } from "next-auth/react";
+
+export const getServerSideProps = async (ctx) => {
+  const session = await getSession(ctx);
+
+  if (session) {
+    return {
+      redirect: {
+        destination: "/welcome",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {
+      data: null,
+    },
+  };
+};
 
 export default function Home() {
+  const signInGoogle = () => {
+    console.log("signed in");
+    signIn("google");
+  };
+
   return (
     <div>
       <Head>
@@ -45,7 +68,10 @@ export default function Home() {
           </div>
 
           {/* oauth */}
-          <button className="bg-blue-600 rounded-md py-2 px-6 w-full flex items-center mb-4 justify-center hover:bg-blue-800 transition ease-in">
+          <button
+            onClick={signInGoogle}
+            className="bg-blue-600 rounded-md py-2 px-6 w-full flex items-center mb-4 justify-center hover:bg-blue-800 transition ease-in"
+          >
             <Icon icon="flat-color-icons:google" className="mr-2 text-lg" />
             Login with Google
           </button>
