@@ -1,5 +1,7 @@
 import { Icon } from "@iconify/react";
 import Image from "next/image";
+import { useContext } from "react";
+import { AppContext } from "./Layout";
 import ProfileBar from "./ProfileBar";
 
 const channels = [
@@ -19,7 +21,9 @@ const members = [
   "Xanthe Neal",
 ];
 
-const Drawer = ({ drawerToggle, setDrawerToggle, setDrawer }) => {
+const Drawer = () => {
+  const { setModal, drawerToggle, setDrawerToggle, setDrawer } =
+    useContext(AppContext);
   const handleToggle = () => {
     setDrawerToggle(!drawerToggle);
   };
@@ -28,15 +32,22 @@ const Drawer = ({ drawerToggle, setDrawerToggle, setDrawer }) => {
     setDrawer(false);
   };
 
+  const openModal = () => {
+    setModal(true);
+  };
+
   return (
     <>
-      <div className="fixed lg:relative lg:static px-5 z-50 w-5/6 max-w-[338px] h-screen bg-zinc-900">
+      <div className="fixed lg:relative lg:static px-5 z-30 w-5/6 max-w-[338px] h-screen bg-zinc-900">
         {drawerToggle ? (
           <>
             {/* channels */}
             <div className="text-gray-50 flex justify-between items-center py-4 box-shadow-xl">
               <h1 className="font-semibold">Channels</h1>
-              <button className="p-2 bg-gray-600/30 text-white rounded-md">
+              <button
+                className="p-2 bg-gray-600/30 text-white rounded-md"
+                onClick={openModal}
+              >
                 <Icon icon="akar-icons:plus" />
               </button>
             </div>
@@ -56,19 +67,14 @@ const Drawer = ({ drawerToggle, setDrawerToggle, setDrawer }) => {
             </div>
 
             {/* list of channels */}
-            {channels.map((channel) => (
+            {channels?.map((channel) => (
               <button
                 key={channel}
                 className="flex items-center mb-4 text-gray-50/80 uppercase text-md font-semibold w-full text-left"
                 onClick={handleToggle}
               >
-                <div className="relative w-10 h-10 bg-gray-800 grid place-items-center rounded-lg mr-4 text-white overflow-hidden">
-                  <Image
-                    src="https://i.pinimg.com/564x/a0/81/55/a08155427a44e000276681a166c65337.jpg"
-                    alt="profile"
-                    layout="fill"
-                    objectFit="cover"
-                  />
+                <div className="w-10 h-10 bg-zinc-800 grid place-items-center rounded-lg mr-4 text-white">
+                  <p>{channel[0]}</p>
                 </div>
 
                 <h3 className="grow inline-block">{channel}</h3>
@@ -102,13 +108,18 @@ const Drawer = ({ drawerToggle, setDrawerToggle, setDrawer }) => {
 
             {/* list of memebrs */}
             <h2 className="text-gray-50 font-semibold pb-6">MEMBERS</h2>
-            {members.map((members, index) => (
+            {members?.map((members, index) => (
               <div
                 key={index}
                 className="flex items-center mb-4 text-gray-50/80 uppercase text-md font-semibold"
               >
-                <div className="w-10 h-10 bg-gray-800 grid place-items-center rounded-lg mr-4 text-white">
-                  <p>{members[0]}</p>
+                <div className="relative overflow-hidden w-10 h-10 bg-gray-800 grid place-items-center rounded-lg mr-4 text-white">
+                  <Image
+                    src="https://i.pinimg.com/564x/a0/81/55/a08155427a44e000276681a166c65337.jpg"
+                    alt="profile"
+                    layout="fill"
+                    objectFit="cover"
+                  />
                 </div>
                 <h3>{members}</h3>
               </div>
@@ -123,7 +134,7 @@ const Drawer = ({ drawerToggle, setDrawerToggle, setDrawer }) => {
       {/* underlay */}
       <div
         onClick={closeDrawer}
-        className="fixed top-0 z-40 w-screen h-screen bg-gray-900/60 lg:hidden"
+        className="fixed top-0 z-20 w-screen h-screen bg-gray-900/60 lg:hidden"
       ></div>
     </>
   );
