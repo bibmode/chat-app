@@ -1,16 +1,8 @@
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AppContext } from "./Layout";
 import ProfileBar from "./ProfileBar";
-
-const channels = [
-  "Front-end developers",
-  "random",
-  "BACK-END",
-  "CATS AND DOGS",
-  "Welcome",
-];
 
 const members = [
   "Xanthe Neal",
@@ -21,10 +13,15 @@ const members = [
   "Xanthe Neal",
 ];
 
-const Drawer = () => {
+const Drawer = ({ channels, addUserToChannel }) => {
   const { setModal, drawerToggle, setDrawerToggle, setDrawer } =
     useContext(AppContext);
-  const handleToggle = () => {
+
+  const [channelIndex, setChannelIndex] = useState(0);
+
+  const handleToggle = (index, channelId) => {
+    setChannelIndex(index);
+    addUserToChannel(channelId);
     setDrawerToggle(!drawerToggle);
   };
 
@@ -67,17 +64,17 @@ const Drawer = () => {
             </div>
 
             {/* list of channels */}
-            {channels?.map((channel) => (
+            {channels?.map((channel, index) => (
               <button
-                key={channel}
+                key={channel.id}
                 className="flex items-center mb-4 text-gray-50/80 uppercase text-md font-semibold w-full text-left"
-                onClick={handleToggle}
+                onClick={() => handleToggle(index, channel.id)}
               >
                 <div className="w-10 h-10 bg-zinc-800 grid place-items-center rounded-lg mr-4 text-white">
-                  <p>{channel[0]}</p>
+                  <p>{channel.name[0]}</p>
                 </div>
 
-                <h3 className="grow inline-block">{channel}</h3>
+                <h3 className="grow inline-block uppercase">{channel.name}</h3>
               </button>
             ))}
 
@@ -97,13 +94,9 @@ const Drawer = () => {
             {/* details bar */}
             <div className="w-full p-3 mt-4 mb-8 text-gray-50">
               <h2 className="text-md uppercase font-semibold">
-                Front-end developers
+                {channels[channelIndex]?.name}
               </h2>
-              <p className="pt-4">
-                Pellentesque sagittis elit enim, sit amet ultrices tellus
-                accumsan quis. In gravida mollis purus, at interdum arcu tempor
-                non
-              </p>
+              <p className="pt-4">{channels[channelIndex]?.description}</p>
             </div>
 
             {/* list of memebrs */}

@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import Head from "next/head";
 import Message from "../components/Message";
 import { messages } from "../data/messages";
@@ -7,9 +7,13 @@ import { AppContext } from "../components/Layout";
 import Drawer from "../components/Drawer";
 import ChannelModal from "../components/ChannelModal";
 import { getSession } from "next-auth/react";
+import { prisma } from "../lib/prisma";
+import axios from "axios";
 
 export const getServerSideProps = async (ctx) => {
   const session = await getSession(ctx);
+
+  // const { channel } = ctx.query;
 
   if (!session) {
     return {
@@ -20,20 +24,33 @@ export const getServerSideProps = async (ctx) => {
     };
   }
 
+  // get channels
+  const channels = await prisma.channel.findMany();
+
   return {
     props: {
-      data: null,
+      channels: await JSON.parse(JSON.stringify(channels)),
     },
   };
 };
 
-export default function ChannelPage() {
+export default function ChannelPage({ channels }) {
   const { drawer, setDrawer, drawerToggle, setDrawerToggle, modal, setModal } =
     useContext(AppContext);
 
   const openDrawer = () => {
     setDrawer(true);
   };
+
+  const addUserToChannel = (channelId) => {
+    axios.patch("/api/user", { channelId: channelId });
+  };
+
+  // add user to welcome channel initially
+  useEffect(() => {
+    addUserToChannel("620a5dfa-bfb6-47dd-923f-fee43f3134b7");
+    console.log(channels);
+  }, []);
 
   return (
     <div className="lg:overflow-y-scroll lg:h-screen lg:flex scrollbar-hidden">
@@ -45,7 +62,9 @@ export default function ChannelPage() {
 
       {modal && <ChannelModal />}
 
-      {drawer && <Drawer />}
+      {drawer && (
+        <Drawer channels={channels} addUserToChannel={addUserToChannel} />
+      )}
 
       <div className="relative pt-16 lg:pt-0 pb-20 lg:pb-0 mx-auto bg-zinc-800 min-h-screen w-full lg:flex lg:flex-col">
         {/* top bar */}

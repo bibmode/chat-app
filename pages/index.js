@@ -8,7 +8,7 @@ export const getServerSideProps = async (ctx) => {
   if (session) {
     return {
       redirect: {
-        destination: "/welcome",
+        destination: "/channels",
         permanent: false,
       },
     };
