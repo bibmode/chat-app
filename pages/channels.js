@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import Head from "next/head";
 import Message from "../components/Message";
 import { messages } from "../data/messages";
@@ -9,11 +9,11 @@ import ChannelModal from "../components/ChannelModal";
 import { getSession } from "next-auth/react";
 import { prisma } from "../lib/prisma";
 import axios from "axios";
+import { useRouter } from "next/router";
 
 export const getServerSideProps = async (ctx) => {
   const session = await getSession(ctx);
-
-  // const { channel } = ctx.query;
+  console.log(session);
 
   if (!session) {
     return {
@@ -25,7 +25,11 @@ export const getServerSideProps = async (ctx) => {
   }
 
   // get channels
-  const channels = await prisma.channel.findMany();
+  const channels = await prisma.channel.findMany({
+    include: {
+      members: true,
+    },
+  });
 
   return {
     props: {
@@ -35,22 +39,65 @@ export const getServerSideProps = async (ctx) => {
 };
 
 export default function ChannelPage({ channels }) {
-  const { drawer, setDrawer, drawerToggle, setDrawerToggle, modal, setModal } =
-    useContext(AppContext);
+  const {
+    drawer,
+    setDrawer,
+    drawerToggle,
+    setDrawerToggle,
+    modal,
+    setModal,
+    refreshData,
+    channelIndex,
+  } = useContext(AppContext);
+
+  const [userInput, setUserInput] = useState("");
+  const [messages, setMessages] = useState(null);
+  const userInputField = useRef(null);
 
   const openDrawer = () => {
     setDrawer(true);
   };
 
-  const addUserToChannel = (channelId) => {
-    axios.patch("/api/user", { channelId: channelId });
+  const addUserToChannel = async (channelId) => {
+    await axios.patch("/api/user", { channelId: channelId });
+  };
+
+  const getMessages = async () => {
+    const messagesRes = await axios.get("/api/message", {
+      params: { channelId: channels[channelIndex]?.id },
+    });
+    console.log(channels[channelIndex]?.id);
+    console.log(messagesRes.data);
+    console.log(channels[channelIndex]);
+    setMessages(messagesRes.data);
+  };
+
+  const handleMessageSubmit = async (e) => {
+    const res = await axios.post("/api/message", {
+      message: userInput,
+      channelId: channels[channelIndex]?.id,
+    });
+
+    console.log(res);
+    userInputField.current.value = "";
+    res.status === 200 && refreshData();
+  };
+
+  const formatDate = (dateAndTime) => {
+    const date = dateAndTime.slice(0, dateAndTime.indexOf("T"));
+    const time = dateAndTime.slice(dateAndTime.indexOf("T") + 1, -8);
+    return `${date} at ${time}`;
   };
 
   // add user to welcome channel initially
   useEffect(() => {
-    addUserToChannel("620a5dfa-bfb6-47dd-923f-fee43f3134b7");
     console.log(channels);
-  }, []);
+    getMessages();
+  }, [channels]);
+
+  useEffect(() => {
+    getMessages();
+  }, [channelIndex]);
 
   return (
     <div className="lg:overflow-y-scroll lg:h-screen lg:flex scrollbar-hidden">
@@ -74,18 +121,20 @@ export default function ChannelPage({ channels }) {
               <Icon icon="charm:menu-hamburger" />
             </button>
 
-            <h1 className="text-md font-semibold mt-0.5 pl-4 lg:pl-0">
-              FRONT-END DEVELOPERS
+            <h1 className="text-md font-semibold mt-0.5 pl-4 lg:pl-0 uppercase">
+              {channels[channelIndex]?.name}
             </h1>
           </div>
         </div>
 
+        {/* conversation section */}
         <div className="lg:mt-auto px-4 overflow-y-scroll scrollbar-hidden">
-          {messages.data?.map((item, index) => (
+          {messages?.map((item, index) => (
             <div key={index} className="lg:container max-w-7xl">
               <Message
-                name={item.name}
-                date={item.date}
+                name={item.user.name}
+                image={item.user.image}
+                date={formatDate(item.createdAt)}
                 message={item.message}
               />
             </div>
@@ -96,13 +145,20 @@ export default function ChannelPage({ channels }) {
         <div className="fixed lg:sticky bottom-0 left-0 w-full py-4 px-5 bg-zinc-800">
           <div className="w-full py-2 pl-5 pr-2 rounded-lg bg-zinc-600/50 flex justify-between lg:container max-w-7xl">
             <input
-              className="bg-transparent outline-none border-none text-white"
+              className="bg-transparent outline-none border-none text-white w-full mr-4"
               type="text"
               placeholder="Type a message here"
               name="message"
               id="message-input"
+              autoComplete="off"
+              ref={userInputField}
+              onChange={(e) => setUserInput(e.target.value)}
             />
-            <button className="text-white text-xl bg-blue-500 w-9 h-9 rounded-lg grid place-content-center">
+            <button
+              className="text-white text-xl bg-blue-500 w-9 h-9 rounded-lg grid place-content-center"
+              disabled={!userInput.trim().length}
+              onClick={(e) => handleMessageSubmit(e)}
+            >
               <Icon icon="fe:paper-plane" />
             </button>
           </div>

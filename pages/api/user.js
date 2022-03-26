@@ -10,25 +10,63 @@ export default async function handler(req, res) {
 
   if (req.method === "PATCH") {
     const { channelId } = req.body;
+    let isUserAMember;
     try {
-      // connect to user
-      await prisma.user.update({
-        where: { email: session.user.email },
-        data: {
-          channels: {
-            connect: { id: channelId },
-          },
+      // check if channel already has user
+      const { members } = await prisma.channel.findFirst({
+        select: {
+          members: true,
         },
       });
 
-      console.log("user added successfully");
+      if (members.length) {
+        isUserAMember = [
+          ...members.map((member) => {
+            if (member.email === session.user.email) return true;
+          }),
+        ];
+      }
 
-      res.status(200).json({ message: "updated user" });
+      console.log(isUserAMember);
+
+      // connect to user
+      if (!isUserAMember) {
+        await prisma.channel.update({
+          where: { id: channelId },
+          data: {
+            channels: {
+              connect: { email: session.user.email },
+            },
+          },
+        });
+
+        console.log("user added successfully");
+
+        res.status(200).json({ message: "updated user" });
+      }
+
+      console.log("user already exists");
+
+      res.status(200).json({ message: "user already exists" });
     } catch (error) {
       res.status(500).json({ message: "failed to add user to channel" });
     }
+  } else if (req.method === "GET") {
+    try {
+      const { userId } = req.query;
+
+      const user = await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+      });
+
+      res.status(200).json(user);
+    } catch (error) {
+      res.status(500).json({ message: "Can't find user" });
+    }
   } else {
-    res.setHeader("Allow", ["PATCH"]);
+    res.setHeader("Allow", ["PATCH", "GET"]);
     res
       .status(405)
       .json({ message: `HTTP method ${req.method} is not supported.` });

@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AppContext } from "./Layout";
 import ProfileBar from "./ProfileBar";
 
@@ -14,14 +14,26 @@ const members = [
 ];
 
 const Drawer = ({ channels, addUserToChannel }) => {
-  const { setModal, drawerToggle, setDrawerToggle, setDrawer } =
-    useContext(AppContext);
+  const {
+    setModal,
+    drawerToggle,
+    setDrawerToggle,
+    setDrawer,
+    channelIndex,
+    setChannelIndex,
+  } = useContext(AppContext);
 
-  const [channelIndex, setChannelIndex] = useState(0);
+  useEffect(() => {
+    console.log(channels);
+  }, [channels]);
 
   const handleToggle = (index, channelId) => {
     setChannelIndex(index);
     addUserToChannel(channelId);
+    setDrawerToggle(!drawerToggle);
+  };
+
+  const goBack = () => {
     setDrawerToggle(!drawerToggle);
   };
 
@@ -85,7 +97,7 @@ const Drawer = ({ channels, addUserToChannel }) => {
           <>
             {/* channel details */}
             <div className="text-gray-50 flex items-center py-4 box-shadow-xl">
-              <button onClick={handleToggle} className="p-2 mr-2 text-white">
+              <button onClick={goBack} className="p-2 mr-2 text-white">
                 <Icon icon="ic:round-arrow-back-ios-new" />
               </button>
               <h1 className="font-semibold">All channels</h1>
@@ -101,20 +113,20 @@ const Drawer = ({ channels, addUserToChannel }) => {
 
             {/* list of memebrs */}
             <h2 className="text-gray-50 font-semibold pb-6">MEMBERS</h2>
-            {members?.map((members, index) => (
+            {channels[channelIndex].members?.map((member, index) => (
               <div
                 key={index}
                 className="flex items-center mb-4 text-gray-50/80 uppercase text-md font-semibold"
               >
                 <div className="relative overflow-hidden w-10 h-10 bg-gray-800 grid place-items-center rounded-lg mr-4 text-white">
                   <Image
-                    src="https://i.pinimg.com/564x/a0/81/55/a08155427a44e000276681a166c65337.jpg"
+                    src={member.image}
                     alt="profile"
                     layout="fill"
                     objectFit="cover"
                   />
                 </div>
-                <h3>{members}</h3>
+                <h3>{member.name}</h3>
               </div>
             ))}
 

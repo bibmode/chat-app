@@ -1,9 +1,8 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import nodemailer from "nodemailer";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../../../lib/prisma";
 
 export default NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -19,5 +18,11 @@ export default NextAuth({
     signOut: "/",
     error: "/",
     verifyRequest: "/",
+  },
+  callbacks: {
+    async session({ session, user }) {
+      session.userId = user.id;
+      return session;
+    },
   },
 });
