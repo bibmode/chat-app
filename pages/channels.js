@@ -52,6 +52,7 @@ export default function ChannelPage({ channels }) {
 
   const [userInput, setUserInput] = useState("");
   const [messages, setMessages] = useState(null);
+  const [loading, setLoading] = useState(false);
   const userInputField = useRef(null);
 
   const openDrawer = () => {
@@ -63,13 +64,23 @@ export default function ChannelPage({ channels }) {
   };
 
   const getMessages = async () => {
+    setLoading(true);
     const messagesRes = await axios.get("/api/message", {
       params: { channelId: channels[channelIndex]?.id },
     });
-    console.log(channels[channelIndex]?.id);
-    console.log(messagesRes.data);
-    console.log(channels[channelIndex]);
+
     setMessages(messagesRes.data);
+    setLoading(false);
+  };
+
+  const refreshedMessages = async () => {
+    const messagesRes = await axios.get("/api/message", {
+      params: { channelId: channels[channelIndex]?.id },
+    });
+
+    // console.log(messagesRes.data.length);
+
+    await setMessages(messagesRes.data);
   };
 
   const handleMessageSubmit = async (e) => {
@@ -89,6 +100,11 @@ export default function ChannelPage({ channels }) {
     return `${date} at ${time}`;
   };
 
+  // get messages every few seconds from the database
+  // useEffect(() => {
+
+  // }, []);
+
   // add user to welcome channel initially
   useEffect(() => {
     console.log(channels);
@@ -97,6 +113,15 @@ export default function ChannelPage({ channels }) {
 
   useEffect(() => {
     getMessages();
+  }, [channelIndex]);
+
+  // get data every second
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      console.log("data fetch");
+      !loading && refreshedMessages();
+    }, 1000);
+    return () => clearInterval(interval);
   }, [channelIndex]);
 
   return (
@@ -127,19 +152,25 @@ export default function ChannelPage({ channels }) {
           </div>
         </div>
 
-        {/* conversation section */}
-        <div className="lg:mt-auto px-4 overflow-y-scroll scrollbar-hidden">
-          {messages?.map((item, index) => (
-            <div key={index} className="lg:container max-w-7xl">
-              <Message
-                name={item.user.name}
-                image={item.user.image}
-                date={formatDate(item.createdAt)}
-                message={item.message}
-              />
-            </div>
-          ))}
-        </div>
+        {/* loading & conversation section */}
+        {loading ? (
+          <div className="text-blue-500 text-4xl container grid place-items-center mt-12 mb-auto">
+            <Icon icon="eos-icons:loading" />
+          </div>
+        ) : (
+          <div className="lg:mt-auto px-4 overflow-y-scroll scrollbar-hidden">
+            {messages?.map((item, index) => (
+              <div key={index} className="lg:container max-w-7xl">
+                <Message
+                  name={item.user.name}
+                  image={item.user.image}
+                  date={formatDate(item.createdAt)}
+                  message={item.message}
+                />
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* input bar */}
         <div className="fixed lg:sticky bottom-0 left-0 w-full py-4 px-5 bg-zinc-800">
