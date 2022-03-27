@@ -1,14 +1,16 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AppContext } from "./Layout";
 import axios from "axios";
 import { useRouter } from "next/router";
 
 const ChannelModal = ({ channels }) => {
-  const { setModal, creatingNewChannel, setCreatingNewChannel } =
+  const { setModal, creatingNewChannel, setCreatingNewChannel, toast } =
     useContext(AppContext);
   const router = useRouter();
+
+  const [disabled, setDisabled] = useState(false);
 
   const refreshData = () => {
     console.log(channels);
@@ -20,6 +22,8 @@ const ChannelModal = ({ channels }) => {
   };
 
   const handleSubmit = async ({ userName, description }) => {
+    setDisabled(true);
+
     const res = await axios.post("/api/channel", { userName, description });
     console.log(res);
     // res.status === 200 && refreshData();
@@ -27,6 +31,8 @@ const ChannelModal = ({ channels }) => {
     if (res.status === 200) {
       refreshData();
       setCreatingNewChannel(true);
+    } else {
+      toast.error("failed to add channel");
     }
 
     closeModal();
@@ -69,6 +75,7 @@ const ChannelModal = ({ channels }) => {
             type="text"
             name="userName"
             id="userName"
+            autoComplete="off"
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.userName}
@@ -108,7 +115,8 @@ const ChannelModal = ({ channels }) => {
 
           <button
             type="submit"
-            className="bg-blue-600 rounded-md py-1 px-6 w-fit mt-4"
+            disabled={disabled}
+            className="bg-blue-600 rounded-md py-1 px-6 w-fit mt-4 disabled:opacity-30 disabled:cursor-not-allowed"
           >
             Save
           </button>

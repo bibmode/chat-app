@@ -71,6 +71,7 @@ const Drawer = ({ channels, addUserToChannel }) => {
                 type="text"
                 name="search"
                 id="search"
+                autoComplete="off"
                 placeholder="Search"
               />
             </div>

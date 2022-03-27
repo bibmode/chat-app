@@ -1,6 +1,8 @@
 import { useRouter } from "next/router";
 import { createContext, useState, useEffect } from "react";
-import Drawer from "./Drawer";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const AppContext = createContext("");
 
@@ -16,6 +18,7 @@ const Layout = (props) => {
   const [modal, setModal] = useState(false);
   const [channelIndex, setChannelIndex] = useState(0);
   const [creatingNewChannel, setCreatingNewChannel] = useState(false);
+  const [switchingChannels, setSwitchingChannels] = useState(false);
   const router = useRouter();
 
   const refreshData = () => {
@@ -41,8 +44,21 @@ const Layout = (props) => {
           setChannelIndex,
           creatingNewChannel,
           setCreatingNewChannel,
+          toast,
+          switchingChannels,
+          setSwitchingChannels,
         }}
       >
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          pauseOnHover
+        />
         <main className="font-Noto w-full">{props.children}</main>
       </AppContext.Provider>
     </div>

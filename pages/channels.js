@@ -51,12 +51,19 @@ export default function ChannelPage({ channels }) {
     setChannelIndex,
     creatingNewChannel,
     setCreatingNewChannel,
+    toast,
   } = useContext(AppContext);
 
   const [userInput, setUserInput] = useState("");
   const [messages, setMessages] = useState(null);
   const [loading, setLoading] = useState(false);
   const userInputField = useRef(null);
+
+  // useEffect(() => {
+  //   toast.error("failed to add channel", {
+  //     // position: "top-right",
+  //   });
+  // }, [messages]);
 
   const openDrawer = () => {
     setDrawer(true);
@@ -77,6 +84,7 @@ export default function ChannelPage({ channels }) {
   };
 
   const refreshedMessages = async () => {
+    console.log("data fetch");
     const messagesRes = await axios.get("/api/message", {
       params: { channelId: channels[channelIndex]?.id },
     });
@@ -93,6 +101,9 @@ export default function ChannelPage({ channels }) {
     });
 
     console.log(res);
+    if (res.status !== 200) {
+      toast.error("failed to send message");
+    }
     userInputField.current.value = "";
   };
 
@@ -101,6 +112,10 @@ export default function ChannelPage({ channels }) {
     const time = dateAndTime.slice(dateAndTime.indexOf("T") + 1, -8);
     return `${date} at ${time}`;
   };
+
+  // useEffect(() => {
+  //   console.log(messages);
+  // }, [messages]);
 
   // get messages every few seconds from the database
   // useEffect(() => {
@@ -125,9 +140,9 @@ export default function ChannelPage({ channels }) {
   // get data every second
   useEffect(() => {
     const interval = setInterval(async () => {
-      console.log("data fetch");
-      !loading && refreshedMessages();
-    }, 5000);
+      !loading && !creatingNewChannel && refreshedMessages();
+      // !loading && refreshedMessages();
+    }, 1000);
     return () => clearInterval(interval);
   }, [channelIndex]);
 
@@ -166,16 +181,22 @@ export default function ChannelPage({ channels }) {
           </div>
         ) : (
           <div className="lg:mt-auto px-4 overflow-y-scroll scrollbar-hidden">
-            {messages?.map((item, index) => (
-              <div key={index} className="lg:container max-w-7xl">
-                <Message
-                  name={item.user.name}
-                  image={item.user.image}
-                  date={formatDate(item.createdAt)}
-                  message={item.message}
-                />
-              </div>
-            ))}
+            {messages?.length ? (
+              messages?.map((item, index) => (
+                <div key={index} className="lg:container max-w-7xl">
+                  <Message
+                    name={item.user.name}
+                    image={item.user.image}
+                    date={formatDate(item.createdAt)}
+                    message={item.message}
+                  />
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-gray-500 mb-4">
+                Be the first to start this conversation
+              </p>
+            )}
           </div>
         )}
 
@@ -191,9 +212,10 @@ export default function ChannelPage({ channels }) {
               autoComplete="off"
               ref={userInputField}
               onChange={(e) => setUserInput(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleMessageSubmit(e)}
             />
             <button
-              className="text-white text-xl bg-blue-500 w-9 h-9 rounded-lg grid place-content-center"
+              className="text-white text-xl bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed w-9 h-9 rounded-lg grid place-content-center"
               disabled={!userInput.trim().length}
               onClick={(e) => handleMessageSubmit(e)}
             >
