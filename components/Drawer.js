@@ -49,7 +49,7 @@ const Drawer = ({ channels, addUserToChannel }) => {
     <>
       <div className="fixed lg:relative lg:static px-5 z-30 w-5/6 max-w-[338px] h-screen bg-zinc-900">
         {drawerToggle ? (
-          <>
+          <div className="flex flex-col h-screen">
             {/* channels */}
             <div className="text-gray-50 flex justify-between items-center py-4 box-shadow-xl">
               <h1 className="font-semibold">Channels</h1>
@@ -76,23 +76,27 @@ const Drawer = ({ channels, addUserToChannel }) => {
             </div>
 
             {/* list of channels */}
-            {channels?.map((channel, index) => (
-              <button
-                key={channel.id}
-                className="flex items-center mb-4 text-gray-50/80 uppercase text-md font-semibold w-full text-left"
-                onClick={() => handleToggle(index, channel.id)}
-              >
-                <div className="w-10 h-10 bg-zinc-800 grid place-items-center rounded-lg mr-4 text-white">
-                  <p>{channel.name[0]}</p>
-                </div>
+            <div className="w-full overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-track-zinc-700 scrollbar-thumb-rounded-full scrollbar-track-rounded-full mb-20">
+              {channels?.map((channel, index) => (
+                <button
+                  key={channel.id}
+                  className="flex items-center mb-4 text-gray-50/80 uppercase text-md font-semibold w-full text-left"
+                  onClick={() => handleToggle(index, channel.id)}
+                >
+                  <div className="w-10 h-10 bg-zinc-800 grid place-items-center rounded-lg mr-4 text-white">
+                    <p>{channel.name[0]}</p>
+                  </div>
 
-                <h3 className="grow inline-block uppercase">{channel.name}</h3>
-              </button>
-            ))}
+                  <h3 className="grow inline-block uppercase">
+                    {channel.name}
+                  </h3>
+                </button>
+              ))}
+            </div>
 
             {/* profile bar */}
             <ProfileBar />
-          </>
+          </div>
         ) : (
           <>
             {/* channel details */}

@@ -3,9 +3,17 @@ import * as Yup from "yup";
 import { useContext } from "react";
 import { AppContext } from "./Layout";
 import axios from "axios";
+import { useRouter } from "next/router";
 
-const ChannelModal = () => {
-  const { setModal, refreshData } = useContext(AppContext);
+const ChannelModal = ({ channels }) => {
+  const { setModal, creatingNewChannel, setCreatingNewChannel } =
+    useContext(AppContext);
+  const router = useRouter();
+
+  const refreshData = () => {
+    console.log(channels);
+    router.replace(router.asPath);
+  };
 
   const closeModal = () => {
     setModal(false);
@@ -14,8 +22,13 @@ const ChannelModal = () => {
   const handleSubmit = async ({ userName, description }) => {
     const res = await axios.post("/api/channel", { userName, description });
     console.log(res);
-    console.log(res);
-    res.status === 200 && refreshData();
+    // res.status === 200 && refreshData();
+
+    if (res.status === 200) {
+      refreshData();
+      setCreatingNewChannel(true);
+    }
+
     closeModal();
   };
 
@@ -27,7 +40,14 @@ const ChannelModal = () => {
     validationSchema: Yup.object({
       userName: Yup.string()
         .max(25, "Must be 25 characters or less")
-        .required("Required"),
+        .required("Required")
+        .test("len", "A channel with that name already exists", (val) => {
+          const channelNames = channels.map((channel) =>
+            channel.name.toUpperCase()
+          );
+
+          return !channelNames.includes(val?.toUpperCase()) || val.length === 0;
+        }),
       description: Yup.string().required("Required"),
     }),
     onSubmit: (values) => {

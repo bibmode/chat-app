@@ -48,6 +48,9 @@ export default function ChannelPage({ channels }) {
     setModal,
     refreshData,
     channelIndex,
+    setChannelIndex,
+    creatingNewChannel,
+    setCreatingNewChannel,
   } = useContext(AppContext);
 
   const [userInput, setUserInput] = useState("");
@@ -91,7 +94,6 @@ export default function ChannelPage({ channels }) {
 
     console.log(res);
     userInputField.current.value = "";
-    res.status === 200 && refreshData();
   };
 
   const formatDate = (dateAndTime) => {
@@ -107,8 +109,13 @@ export default function ChannelPage({ channels }) {
 
   // add user to welcome channel initially
   useEffect(() => {
-    console.log(channels);
     getMessages();
+    if (creatingNewChannel) {
+      const latestChannel = channels.length;
+      console.log(latestChannel);
+      setChannelIndex(latestChannel - 1);
+      setCreatingNewChannel(false);
+    }
   }, [channels]);
 
   useEffect(() => {
@@ -120,7 +127,7 @@ export default function ChannelPage({ channels }) {
     const interval = setInterval(async () => {
       console.log("data fetch");
       !loading && refreshedMessages();
-    }, 1000);
+    }, 5000);
     return () => clearInterval(interval);
   }, [channelIndex]);
 
@@ -132,7 +139,7 @@ export default function ChannelPage({ channels }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      {modal && <ChannelModal />}
+      {modal && <ChannelModal channels={channels} />}
 
       {drawer && (
         <Drawer channels={channels} addUserToChannel={addUserToChannel} />

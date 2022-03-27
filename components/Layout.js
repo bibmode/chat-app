@@ -15,6 +15,7 @@ const Layout = (props) => {
   const [drawerToggle, setDrawerToggle] = useState(true);
   const [modal, setModal] = useState(false);
   const [channelIndex, setChannelIndex] = useState(0);
+  const [creatingNewChannel, setCreatingNewChannel] = useState(false);
   const router = useRouter();
 
   const refreshData = () => {
@@ -38,6 +39,8 @@ const Layout = (props) => {
           refreshData,
           channelIndex,
           setChannelIndex,
+          creatingNewChannel,
+          setCreatingNewChannel,
         }}
       >
         <main className="font-Noto w-full">{props.children}</main>
