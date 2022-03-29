@@ -10,6 +10,8 @@ import { getSession } from "next-auth/react";
 import { prisma } from "../lib/prisma";
 import axios from "axios";
 import { useRouter } from "next/router";
+import getDate from "../utils/getDate";
+import sortMessagesDate from "../utils/sortMessagesDate";
 
 export const getServerSideProps = async (ctx) => {
   const session = await getSession(ctx);
@@ -52,11 +54,15 @@ export default function ChannelPage({ channels }) {
     creatingNewChannel,
     setCreatingNewChannel,
     toast,
+    dateBlockShow,
+    dateBlock,
+    setDateBlock,
   } = useContext(AppContext);
 
   const [userInput, setUserInput] = useState("");
   const [messages, setMessages] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [sortedMessages, setSortedMessages] = useState([]);
   const userInputField = useRef(null);
 
   // useEffect(() => {
@@ -79,7 +85,13 @@ export default function ChannelPage({ channels }) {
       params: { channelId: channels[channelIndex]?.id },
     });
 
-    setMessages(messagesRes.data);
+    const messagesData = messagesRes.data.length
+      ? sortMessagesDate(messagesRes.data)
+      : [];
+
+    console.log(messagesData);
+
+    await setMessages(messagesData);
     setLoading(false);
   };
 
@@ -90,8 +102,11 @@ export default function ChannelPage({ channels }) {
     });
 
     // console.log(messagesRes.data.length);
+    const messagesData = messagesRes.data.length
+      ? sortMessagesDate(messagesRes.data)
+      : [];
 
-    await setMessages(messagesRes.data);
+    await setMessages(messagesData);
   };
 
   const handleMessageSubmit = async (e) => {
@@ -113,15 +128,6 @@ export default function ChannelPage({ channels }) {
     return `${date} at ${time}`;
   };
 
-  // useEffect(() => {
-  //   console.log(messages);
-  // }, [messages]);
-
-  // get messages every few seconds from the database
-  // useEffect(() => {
-
-  // }, []);
-
   // add user to welcome channel initially
   useEffect(() => {
     getMessages();
@@ -135,14 +141,19 @@ export default function ChannelPage({ channels }) {
 
   useEffect(() => {
     getMessages();
+    sortMessagesDate(messages);
   }, [channelIndex]);
+
+  // useEffect(() => {
+
+  // }, [messages]);
 
   // get data every second
   useEffect(() => {
     const interval = setInterval(async () => {
       !loading && !creatingNewChannel && refreshedMessages();
       // !loading && refreshedMessages();
-    }, 1000);
+    }, 10000);
     return () => clearInterval(interval);
   }, [channelIndex]);
 
@@ -183,13 +194,26 @@ export default function ChannelPage({ channels }) {
           <div className="lg:mt-auto px-4 overflow-y-scroll scrollbar-hidden">
             {messages?.length ? (
               messages?.map((item, index) => (
-                <div key={index} className="lg:container max-w-7xl">
-                  <Message
-                    name={item.user.name}
-                    image={item.user.image}
-                    date={formatDate(item.createdAt)}
-                    message={item.message}
-                  />
+                <div key={index}>
+                  {
+                    <div className="container flex items-center justify-center">
+                      <div className="h-[1px] grow m-auto bg-gray-600" />
+                      <span className="text-gray-600 text-sm px-4">
+                        {item?.date}
+                      </span>
+                      <div className="h-[1px] grow m-auto bg-gray-600" />
+                    </div>
+                  }
+                  {item?.messagesOnThisDay?.map((message, index) => (
+                    <div key={index} className="lg:container max-w-7xl">
+                      <Message
+                        name={message.user.name}
+                        image={message.user.image}
+                        date={formatDate(message.createdAt)}
+                        message={message.message}
+                      />
+                    </div>
+                  ))}
                 </div>
               ))
             ) : (

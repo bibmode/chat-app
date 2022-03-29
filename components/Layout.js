@@ -19,6 +19,8 @@ const Layout = (props) => {
   const [channelIndex, setChannelIndex] = useState(0);
   const [creatingNewChannel, setCreatingNewChannel] = useState(false);
   const [switchingChannels, setSwitchingChannels] = useState(false);
+  const [dateBlockShow, setDateBlockShow] = useState(false);
+  const [dateBlock, setDateBlock] = useState("");
   const router = useRouter();
 
   const refreshData = () => {
@@ -47,6 +49,10 @@ const Layout = (props) => {
           toast,
           switchingChannels,
           setSwitchingChannels,
+          dateBlockShow,
+          setDateBlockShow,
+          dateBlock,
+          setDateBlock,
         }}
       >
         <ToastContainer
