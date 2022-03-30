@@ -1,6 +1,7 @@
 import { Icon } from "@iconify/react";
 import Head from "next/head";
 import { getSession, signIn } from "next-auth/react";
+import { toast } from "react-toastify";
 
 export const getServerSideProps = async (ctx) => {
   const session = await getSession(ctx);
@@ -24,7 +25,19 @@ export const getServerSideProps = async (ctx) => {
 export default function Home() {
   const signInGoogle = () => {
     console.log("signed in");
-    signIn("google");
+    signIn("google")
+      .then((error) => signInError())
+      .catch((error) => signInError());
+  };
+  const signInGithub = () => {
+    console.log("signed in");
+    signIn("github")
+      .then((error) => signInError())
+      .catch((error) => signInError());
+  };
+
+  const signInError = () => {
+    toast.error("Try with another sign-in method!");
   };
 
   return (
@@ -45,29 +58,6 @@ export default function Home() {
             account to check it out!
           </p>
 
-          {/* email */}
-          <form>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              placeholder="Enter your email"
-              className="rounded-lg bg-zinc-700 mb-4 py-3 px-4 outline-none border-none w-full text-sm"
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 rounded-md py-2 px-6 w-full hover:bg-blue-800 transition ease-in"
-            >
-              Login
-            </button>
-          </form>
-
-          <div className="flex items-center justify-between my-4">
-            <div className="w-2/5 h-[1px] bg-gray-500" />
-            <span className="text-gray-400">or</span>
-            <div className="w-2/5 h-[1px] bg-gray-500" />
-          </div>
-
           {/* oauth */}
           <button
             onClick={signInGoogle}
@@ -76,7 +66,10 @@ export default function Home() {
             <Icon icon="flat-color-icons:google" className="mr-2 text-lg" />
             Login with Google
           </button>
-          <button className="bg-blue-600 rounded-md py-2 px-6 w-full flex items-center justify-center hover:bg-blue-800 transition ease-in">
+          <button
+            onClick={signInGithub}
+            className="bg-blue-600 rounded-md py-2 px-6 w-full flex items-center justify-center hover:bg-blue-800 transition ease-in"
+          >
             <Icon icon="akar-icons:github-fill" className="mr-2 text-lg" />
             Login with Github
           </button>

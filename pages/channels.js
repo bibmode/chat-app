@@ -63,13 +63,8 @@ export default function ChannelPage({ channels }) {
   const [messages, setMessages] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sortedMessages, setSortedMessages] = useState([]);
+  const [sentMessage, setSentMessage] = useState(false);
   const userInputField = useRef(null);
-
-  // useEffect(() => {
-  //   toast.error("failed to add channel", {
-  //     // position: "top-right",
-  //   });
-  // }, [messages]);
 
   const openDrawer = () => {
     setDrawer(true);
@@ -77,6 +72,14 @@ export default function ChannelPage({ channels }) {
 
   const addUserToChannel = async (channelId) => {
     await axios.patch("/api/user", { channelId: channelId });
+  };
+
+  const scrollMessages = () => {
+    const messagesDiv = document.getElementById("messages-div");
+    messagesDiv.scrollTo({
+      top: messagesDiv.scrollHeight, //scroll to the bottom of the element
+      behavior: "smooth", //auto, smooth, initial, inherit
+    });
   };
 
   const getMessages = async () => {
@@ -118,6 +121,9 @@ export default function ChannelPage({ channels }) {
     console.log(res);
     if (res.status !== 200) {
       toast.error("failed to send message");
+    } else if (res.status === 200) {
+      await refreshedMessages();
+      await scrollMessages();
     }
     userInputField.current.value = "";
   };
@@ -143,10 +149,6 @@ export default function ChannelPage({ channels }) {
     getMessages();
     sortMessagesDate(messages);
   }, [channelIndex]);
-
-  // useEffect(() => {
-
-  // }, [messages]);
 
   // get data every second
   useEffect(() => {
@@ -191,7 +193,10 @@ export default function ChannelPage({ channels }) {
             <Icon icon="eos-icons:loading" />
           </div>
         ) : (
-          <div className="lg:mt-auto px-4 overflow-y-scroll scrollbar-hidden">
+          <div
+            id="messages-div"
+            className="lg:mt-auto px-4 overflow-y-scroll scrollbar-hidden"
+          >
             {messages?.length ? (
               messages?.map((item, index) => (
                 <div key={index}>

@@ -8,7 +8,7 @@ const ProfileBar = () => {
   };
 
   return (
-    <div className="absolute flex items-center p-4 bottom-0 left-0 bg-stone-900 w-full">
+    <div className="absolute flex items-center p-4 bottom-0 left-0 bg-neutral-900 w-full">
       <div className="relative w-10 h-10 rounded-lg overflow-hidden">
         <Image
           src="https://i.pinimg.com/564x/a0/81/55/a08155427a44e000276681a166c65337.jpg"
