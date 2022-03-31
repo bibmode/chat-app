@@ -14,6 +14,25 @@ const Drawer = ({ channels, addUserToChannel }) => {
     setChannelIndex,
   } = useContext(AppContext);
 
+  const [displayChannels, setDisplayChannels] = useState(channels);
+
+  // TODO: search channel functionality
+  const searchChannels = (e) => {
+    const foundItems = channels?.filter((item) =>
+      item?.name?.toLowerCase().includes(e.target.value.toLowerCase())
+    );
+
+    if (foundItems.length) {
+      setDisplayChannels(foundItems);
+    } else {
+      setDisplayChannels(null);
+    }
+
+    if (e.target.value.trim() === "") {
+      setDisplayChannels(channels);
+    }
+  };
+
   const handleToggle = (index, channelId) => {
     setChannelIndex(index);
     addUserToChannel(channelId);
@@ -22,6 +41,7 @@ const Drawer = ({ channels, addUserToChannel }) => {
 
   const goBack = () => {
     setDrawerToggle(!drawerToggle);
+    setDisplayChannels(channels);
   };
 
   const closeDrawer = () => {
@@ -60,12 +80,13 @@ const Drawer = ({ channels, addUserToChannel }) => {
                 id="search"
                 autoComplete="off"
                 placeholder="Search"
+                onChange={searchChannels}
               />
             </div>
 
             {/* list of channels */}
             <div className="w-full overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-track-zinc-700 scrollbar-thumb-rounded-full scrollbar-track-rounded-full mb-20">
-              {channels?.map((channel, index) => (
+              {displayChannels?.map((channel, index) => (
                 <button
                   key={channel.id}
                   className="flex items-center mb-4 text-gray-50/80 uppercase text-md font-semibold w-full text-left"
