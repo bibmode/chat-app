@@ -1,25 +1,10 @@
 import Image from "next/image";
 import { useEffect, useContext } from "react";
 import getDate from "../utils/getDate";
-import sortMessagesDate from "../utils/sortMessagesDate";
 import { AppContext } from "./Layout";
 
 const Message = ({ name, date, message }) => {
-  const { dateBlockShow, setDateBlockShow, dateBlock, setDateBlock } =
-    useContext(AppContext);
   const newdate = getDate(date);
-  const newDateBlock = newdate.slice(0, newdate.indexOf("at"));
-  useEffect(() => {
-    // if (dateBlock !== newDateBlock) {
-    //   setDateBlockShow(true);
-    //   setDateBlock(newDateBlock);
-    //   console.log(dateBlock);
-    //   console.log(newDateBlock);
-    // } else {
-    //   setDateBlockShow(false);
-    // }
-    // console.log(newDateBlock);
-  }, []);
 
   return (
     <>

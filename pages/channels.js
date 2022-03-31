@@ -12,6 +12,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import getDate from "../utils/getDate";
 import sortMessagesDate from "../utils/sortMessagesDate";
+import moment from "moment-timezone";
 
 export const getServerSideProps = async (ctx) => {
   const session = await getSession(ctx);
@@ -44,27 +45,22 @@ export default function ChannelPage({ channels }) {
   const {
     drawer,
     setDrawer,
-    drawerToggle,
-    setDrawerToggle,
     modal,
-    setModal,
-    refreshData,
     channelIndex,
     setChannelIndex,
     creatingNewChannel,
     setCreatingNewChannel,
     toast,
-    dateBlockShow,
-    dateBlock,
-    setDateBlock,
   } = useContext(AppContext);
 
   const [userInput, setUserInput] = useState("");
   const [messages, setMessages] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [sortedMessages, setSortedMessages] = useState([]);
-  const [sentMessage, setSentMessage] = useState(false);
   const userInputField = useRef(null);
+
+  useEffect(() => {
+    // console.log(sampleTime);
+  }, [messages]);
 
   const openDrawer = () => {
     setDrawer(true);
@@ -121,7 +117,7 @@ export default function ChannelPage({ channels }) {
     console.log(res);
     if (res.status !== 200) {
       toast.error("failed to send message");
-    } else if (res.status === 200) {
+    } else {
       await refreshedMessages();
       await scrollMessages();
     }
@@ -195,7 +191,7 @@ export default function ChannelPage({ channels }) {
         ) : (
           <div
             id="messages-div"
-            className="lg:mt-auto px-4 overflow-y-scroll scrollbar-hidden"
+            className="lg:mt-auto pt-8 px-4 overflow-y-scroll scrollbar-hidden"
           >
             {messages?.length ? (
               messages?.map((item, index) => (
@@ -214,7 +210,7 @@ export default function ChannelPage({ channels }) {
                       <Message
                         name={message.user.name}
                         image={message.user.image}
-                        date={formatDate(message.createdAt)}
+                        date={message.createdAt}
                         message={message.message}
                       />
                     </div>
