@@ -67,6 +67,7 @@ export default function ChannelPage({ initialChannels }) {
 
   useEffect(() => {
     setChannels(initialChannels);
+    setDisplayChannels(initialChannels);
   }, [initialChannels]);
 
   const scrollMessages = () => {
