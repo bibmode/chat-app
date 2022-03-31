@@ -1,10 +1,11 @@
 import { Icon } from "@iconify/react";
+import axios from "axios";
 import Image from "next/image";
 import { useContext, useState, useEffect } from "react";
 import { AppContext } from "./Layout";
 import ProfileBar from "./ProfileBar";
 
-const Drawer = ({ channels, addUserToChannel }) => {
+const Drawer = ({ channels }) => {
   const {
     setModal,
     drawerToggle,
@@ -14,7 +15,17 @@ const Drawer = ({ channels, addUserToChannel }) => {
     setChannelIndex,
   } = useContext(AppContext);
 
+  const [members, setMembers] = useState(null);
+
   const [displayChannels, setDisplayChannels] = useState(channels);
+
+  const addUserToChannel = async (channelId) => {
+    const res = await axios.patch("/api/user", { channelId });
+    console.log(res);
+    if (res?.data?.members?.length) {
+      setMembers(res.data.members);
+    }
+  };
 
   // TODO: search channel functionality
   const searchChannels = (e) => {
@@ -126,7 +137,7 @@ const Drawer = ({ channels, addUserToChannel }) => {
 
             {/* list of memebrs */}
             <h2 className="text-gray-50 font-semibold pb-6">MEMBERS</h2>
-            {channels[channelIndex].members?.map((member, index) => (
+            {members?.map((member, index) => (
               <div
                 key={index}
                 className="flex items-center mb-4 text-gray-50/80 uppercase text-md font-semibold"

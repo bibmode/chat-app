@@ -1,7 +1,7 @@
 import Image from "next/image";
 import getDate from "../utils/getDate";
 
-const Message = ({ name, date, message }) => {
+const Message = ({ name, date, message, image }) => {
   const newdate = date ? getDate(date) : "sending";
 
   return (
@@ -9,12 +9,7 @@ const Message = ({ name, date, message }) => {
       <div className="py-4 grid grid-cols-[min-content_repeat(7,_1fr)] gap-2 max-h-fit">
         {/* image */}
         <div className="relative bg-white grid row-span-2 h-9 w-9 rounded-md overflow-hidden place-content-center">
-          <Image
-            src="https://i.pinimg.com/564x/a0/81/55/a08155427a44e000276681a166c65337.jpg"
-            alt="profile"
-            layout="fill"
-            objectFit="cover"
-          />
+          <Image src={image} alt="profile" layout="fill" objectFit="cover" />
         </div>
 
         {/* details */}

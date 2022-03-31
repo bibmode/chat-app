@@ -8,40 +8,54 @@ export default async function handler(req, res) {
     return res.status(401).json({ message: "Unauthorized." });
   }
 
+  console.log(session);
+
   if (req.method === "PATCH") {
     const { channelId } = req.body;
+    console.log(channelId);
     let isUserAMember;
+
     try {
       // check if channel already has user
       const { members } = await prisma.channel.findFirst({
+        where: { id: channelId },
         select: {
           members: true,
         },
       });
 
-      if (members.length) {
-        isUserAMember = [
-          ...members.map((member) => {
-            if (member.email === session.user.email) return true;
-          }),
-        ];
-      }
+      console.log(members);
 
-      // connect to user
-      if (!isUserAMember) {
+      if (members.length) {
+        isUserAMember = await members.filter(
+          (member) => member.email === session.user.email
+        );
+
+        console.log(isUserAMember, members);
+      } else {
         await prisma.channel.update({
           where: { id: channelId },
           data: {
-            channels: {
+            members: {
               connect: { email: session.user.email },
             },
           },
         });
-
-        res.status(200).json({ message: "updated user" });
       }
 
-      res.status(200).json({ message: "user already exists" });
+      // connect to user
+      if (!isUserAMember[0]) {
+        await prisma.channel.update({
+          where: { id: channelId },
+          data: {
+            members: {
+              connect: { email: session.user.email },
+            },
+          },
+        });
+      }
+
+      res.status(200).json({ message: "user added successfully", members });
     } catch (error) {
       res.status(500).json({ message: "failed to add user to channel" });
     }

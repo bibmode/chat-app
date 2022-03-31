@@ -62,10 +62,6 @@ export default function ChannelPage({ channels }) {
     setDrawer(true);
   };
 
-  const addUserToChannel = async (channelId) => {
-    await axios.patch("/api/user", { channelId: channelId });
-  };
-
   const scrollMessages = () => {
     const messagesDiv = document.getElementById("messages-div");
     messagesDiv.scrollTo({
@@ -159,9 +155,7 @@ export default function ChannelPage({ channels }) {
 
       {modal && <ChannelModal channels={channels} />}
 
-      {drawer && (
-        <Drawer channels={channels} addUserToChannel={addUserToChannel} />
-      )}
+      {drawer && <Drawer channels={channels} />}
 
       <div className="relative pt-16 lg:pt-0 pb-20 lg:pb-0 mx-auto bg-zinc-800 min-h-screen w-full lg:flex lg:flex-col">
         {/* top bar */}
