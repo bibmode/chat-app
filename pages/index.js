@@ -52,8 +52,7 @@ export default function Home() {
           <h1 className="font-semibold text-xl">Gen&apos;s Chat App</h1>
           <p className="text-sm mt-3 mb-8 text-left">
             This is my solution for devchallenge.io Chat App challenge. You can
-            login using the dummy email below or by your own google/github
-            account to check it out!
+            login/signup using your own google/github account to check it out!
           </p>
 
           {/* oauth */}
