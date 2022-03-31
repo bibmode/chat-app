@@ -62,14 +62,14 @@ export default function Home() {
             className="bg-blue-600 rounded-md py-2 px-6 w-full flex items-center mb-4 justify-center hover:bg-blue-800 transition ease-in"
           >
             <Icon icon="flat-color-icons:google" className="mr-2 text-lg" />
-            Login with Google
+            Continue with Google
           </button>
           <button
             onClick={signInGithub}
             className="bg-blue-600 rounded-md py-2 px-6 w-full flex items-center justify-center hover:bg-blue-800 transition ease-in"
           >
             <Icon icon="akar-icons:github-fill" className="mr-2 text-lg" />
-            Login with Github
+            Continue with Github
           </button>
         </div>
       </main>
