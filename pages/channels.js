@@ -23,15 +23,28 @@ export const getServerSideProps = async (ctx) => {
   }
 
   // get channels
-  const initialChannels = await prisma.channel.findMany({
+  const channelRes = await prisma.channel.findMany({
     include: {
       members: true,
     },
   });
+  const initialChannels = await JSON.parse(JSON.stringify(channelRes));
+  // console.log(initialChannels);
+
+  const messagesRes = await prisma.channel.findFirst({
+    where: { id: initialChannels[0].id },
+    select: {
+      messages: true, // Return all fields
+    },
+  });
+
+  const initialMessages = await JSON.parse(JSON.stringify(messagesRes));
+  console.log(initialMessages);
 
   return {
     props: {
-      initialChannels: await JSON.parse(JSON.stringify(initialChannels)),
+      initialChannels,
+      initialMessages: initialMessages.messages,
     },
   };
 };
@@ -65,11 +78,13 @@ export default function ChannelPage({ initialChannels }) {
     setDrawer(true);
   };
 
+  // set channels on initial reload
   useEffect(() => {
     setChannels(initialChannels);
     setDisplayChannels(initialChannels);
   }, [initialChannels]);
 
+  // scroll down to div every new message added
   const scrollMessages = () => {
     const messagesDiv = document.getElementById("messages-div");
     messagesDiv.scrollTo({
@@ -78,14 +93,14 @@ export default function ChannelPage({ initialChannels }) {
     });
   };
 
+  // retrieving messages loading
   const getMessages = async () => {
-    console.log(channels[channelIndex]?.id);
     setLoading(true);
     const messagesRes = await axios.get("/api/message", {
       params: { channelId: channels[channelIndex]?.id },
     });
 
-    const messagesData = messagesRes.data.length
+    const messagesData = (await messagesRes.data.length)
       ? sortMessagesDate(messagesRes.data)
       : [];
 
@@ -93,18 +108,22 @@ export default function ChannelPage({ initialChannels }) {
     setLoading(false);
   };
 
+  // retrieving messages without loading
   const refreshedMessages = async () => {
     const messagesRes = await axios.get("/api/message", {
       params: { channelId: channels[channelIndex]?.id },
     });
 
-    const messagesData = messagesRes.data.length
+    const messagesData = (await messagesRes.data.length)
       ? sortMessagesDate(messagesRes.data)
       : [];
+
+    console.log(messagesData);
 
     await setMessages(messagesData);
   };
 
+  // sending messages
   const handleMessageSubmit = async (e) => {
     setSending(true);
     userInputField.current.value = "";
@@ -128,10 +147,8 @@ export default function ChannelPage({ initialChannels }) {
     return;
   };
 
-  // add user to welcome channel initially
+  // show display channels with the new added channel
   useEffect(() => {
-    console.log(channels);
-
     if (creatingNewChannel) {
       const latestChannel = channels.length;
       setChannelIndex(latestChannel - 1);
@@ -140,18 +157,17 @@ export default function ChannelPage({ initialChannels }) {
     }
   }, [channels]);
 
+  // get messages every toggle and modification of channel
   useEffect(() => {
     (async function renewMessages() {
       await getMessages();
-      await sortMessagesDate(messages);
     })();
-  }, [channelIndex]);
+  }, [channelIndex, channels]);
 
   // get data every second
   useEffect(() => {
     const interval = setInterval(async () => {
       !loading && !creatingNewChannel && refreshedMessages();
-      // !loading && refreshedMessages();
     }, 10000);
     return () => clearInterval(interval);
   }, [channelIndex]);
@@ -198,7 +214,7 @@ export default function ChannelPage({ initialChannels }) {
               id="messages-div"
               className="lg:mt-auto pt-8 px-4 overflow-y-scroll scrollbar-hidden"
             >
-              {messages?.length ? (
+              {messages?.length > 0 ? (
                 <>
                   {messages?.map((item, index) => (
                     <div key={index}>
@@ -214,10 +230,10 @@ export default function ChannelPage({ initialChannels }) {
                       {item?.messagesOnThisDay?.map((message, index) => (
                         <div key={index} className="lg:container max-w-7xl">
                           <Message
-                            name={message.user.name}
-                            image={message.user.image}
-                            date={message.createdAt}
-                            message={message.message}
+                            name={message?.user?.name}
+                            image={message?.user?.image}
+                            date={message?.createdAt}
+                            message={message?.message}
                           />
                         </div>
                       ))}
