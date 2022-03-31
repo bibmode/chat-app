@@ -13,7 +13,6 @@ const ChannelModal = ({ channels }) => {
   const [disabled, setDisabled] = useState(false);
 
   const refreshData = () => {
-    console.log(channels);
     router.replace(router.asPath);
   };
 
@@ -25,8 +24,6 @@ const ChannelModal = ({ channels }) => {
     setDisabled(true);
 
     const res = await axios.post("/api/channel", { userName, description });
-    console.log(res);
-    // res.status === 200 && refreshData();
 
     if (res.status === 200) {
       refreshData();
@@ -76,11 +73,12 @@ const ChannelModal = ({ channels }) => {
             name="userName"
             id="userName"
             autoComplete="off"
+            disabled={disabled}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.userName}
             placeholder="Channel name"
-            className={`rounded-lg bg-zinc-700 mt-4 py-3 px-4 outline-none w-full ${
+            className={`rounded-lg bg-zinc-700 mt-4 py-3 px-4 outline-none disabled:cursor-not-allowed disabled:opacity-50 w-full ${
               formik.touched.userName && formik.errors.userName
                 ? "border-2 border-rose-600"
                 : "border-none"
@@ -97,11 +95,12 @@ const ChannelModal = ({ channels }) => {
             id="description"
             cols="35"
             rows="7"
+            disabled={disabled}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.description}
             placeholder="Channel description"
-            className={`rounded-lg bg-zinc-700 mt-4 py-3 px-4 outline-none w-full resize-none ${
+            className={`rounded-lg bg-zinc-700 mt-4 py-3 px-4 outline-none disabled:cursor-not-allowed disabled:opacity-50 w-full resize-none ${
               formik.touched.description && formik.errors.description
                 ? "border-2 border-rose-600"
                 : "border-none"

@@ -39,7 +39,6 @@ const getDate = (date) => {
     } at ${timeMessage}`;
   }
 
-  // console.log(finalString);
   return finalString;
 };
 

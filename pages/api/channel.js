@@ -22,8 +22,6 @@ export default async function handler(req, res) {
         },
       });
 
-      console.log("channel added successfully");
-
       res.status(200).json({ message: "channel added successfully" });
     } catch (error) {
       res.status(500).json({ message: "failed to create channel" });

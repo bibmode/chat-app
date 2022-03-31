@@ -4,15 +4,6 @@ import { useContext, useState, useEffect } from "react";
 import { AppContext } from "./Layout";
 import ProfileBar from "./ProfileBar";
 
-const members = [
-  "Xanthe Neal",
-  "Nellie Francis",
-  "Denzel Barrett",
-  "Shaunna Firth",
-  "CATS AND DOGS",
-  "Xanthe Neal",
-];
-
 const Drawer = ({ channels, addUserToChannel }) => {
   const {
     setModal,
@@ -22,10 +13,6 @@ const Drawer = ({ channels, addUserToChannel }) => {
     channelIndex,
     setChannelIndex,
   } = useContext(AppContext);
-
-  useEffect(() => {
-    console.log(channels);
-  }, [channels]);
 
   const handleToggle = (index, channelId) => {
     setChannelIndex(index);

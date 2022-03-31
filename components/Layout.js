@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useRouter } from "next/router";
 import { createContext, useState, useEffect } from "react";
 
@@ -13,6 +14,7 @@ const getWindowWidth = () => {
 };
 
 const Layout = (props) => {
+  const [loading, setLoading] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const [drawerToggle, setDrawerToggle] = useState(true);
   const [modal, setModal] = useState(false);
@@ -21,6 +23,7 @@ const Layout = (props) => {
   const [switchingChannels, setSwitchingChannels] = useState(false);
   const [dateBlockShow, setDateBlockShow] = useState(false);
   const [dateBlock, setDateBlock] = useState("");
+  const [tempMessage, setTempMessage] = useState("");
   const router = useRouter();
 
   const refreshData = () => {
@@ -53,6 +56,10 @@ const Layout = (props) => {
           setDateBlockShow,
           dateBlock,
           setDateBlock,
+          loading,
+          setLoading,
+          tempMessage,
+          setTempMessage,
         }}
       >
         <ToastContainer

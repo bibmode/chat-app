@@ -5,7 +5,6 @@ const sortMessagesDate = (messages) => {
   const dateArr = messages?.map((item) => {
     const date = getDate(item.createdAt);
     const justTheDay = date?.slice(0, date.indexOf("at") - 1);
-    // console.log(date);
     return justTheDay;
   });
 

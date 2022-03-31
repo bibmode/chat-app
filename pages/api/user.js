@@ -27,8 +27,6 @@ export default async function handler(req, res) {
         ];
       }
 
-      console.log(isUserAMember);
-
       // connect to user
       if (!isUserAMember) {
         await prisma.channel.update({
@@ -40,12 +38,8 @@ export default async function handler(req, res) {
           },
         });
 
-        console.log("user added successfully");
-
         res.status(200).json({ message: "updated user" });
       }
-
-      console.log("user already exists");
 
       res.status(200).json({ message: "user already exists" });
     } catch (error) {

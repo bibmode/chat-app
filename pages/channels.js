@@ -2,21 +2,16 @@ import { Icon } from "@iconify/react";
 import { useContext, useEffect, useState, useRef } from "react";
 import Head from "next/head";
 import Message from "../components/Message";
-import { messages } from "../data/messages";
 import { AppContext } from "../components/Layout";
 import Drawer from "../components/Drawer";
 import ChannelModal from "../components/ChannelModal";
-import { getSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { prisma } from "../lib/prisma";
 import axios from "axios";
-import { useRouter } from "next/router";
-import getDate from "../utils/getDate";
 import sortMessagesDate from "../utils/sortMessagesDate";
-import moment from "moment-timezone";
 
 export const getServerSideProps = async (ctx) => {
   const session = await getSession(ctx);
-  console.log(session);
 
   if (!session) {
     return {
@@ -51,16 +46,17 @@ export default function ChannelPage({ channels }) {
     creatingNewChannel,
     setCreatingNewChannel,
     toast,
+    loading,
+    setLoading,
   } = useContext(AppContext);
+
+  const { data: session } = useSession();
 
   const [userInput, setUserInput] = useState("");
   const [messages, setMessages] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const userInputField = useRef(null);
+  const [sending, setSending] = useState(false);
 
-  useEffect(() => {
-    // console.log(sampleTime);
-  }, [messages]);
+  const userInputField = useRef(null);
 
   const openDrawer = () => {
     setDrawer(true);
@@ -88,19 +84,15 @@ export default function ChannelPage({ channels }) {
       ? sortMessagesDate(messagesRes.data)
       : [];
 
-    console.log(messagesData);
-
     await setMessages(messagesData);
     setLoading(false);
   };
 
   const refreshedMessages = async () => {
-    console.log("data fetch");
     const messagesRes = await axios.get("/api/message", {
       params: { channelId: channels[channelIndex]?.id },
     });
 
-    // console.log(messagesRes.data.length);
     const messagesData = messagesRes.data.length
       ? sortMessagesDate(messagesRes.data)
       : [];
@@ -109,25 +101,26 @@ export default function ChannelPage({ channels }) {
   };
 
   const handleMessageSubmit = async (e) => {
-    const res = await axios.post("/api/message", {
-      message: userInput,
-      channelId: channels[channelIndex]?.id,
-    });
-
-    console.log(res);
-    if (res.status !== 200) {
-      toast.error("failed to send message");
-    } else {
-      await refreshedMessages();
-      await scrollMessages();
-    }
+    setSending(true);
     userInputField.current.value = "";
-  };
 
-  const formatDate = (dateAndTime) => {
-    const date = dateAndTime.slice(0, dateAndTime.indexOf("T"));
-    const time = dateAndTime.slice(dateAndTime.indexOf("T") + 1, -8);
-    return `${date} at ${time}`;
+    if (userInput.trim().length) {
+      const res = await axios.post("/api/message", {
+        message: userInput,
+        channelId: channels[channelIndex]?.id,
+      });
+
+      if (res.status !== 200) {
+        toast.error("failed to send message");
+      } else {
+        await refreshedMessages();
+        await scrollMessages();
+      }
+      await setUserInput("");
+      await setSending(false);
+    }
+
+    return;
   };
 
   // add user to welcome channel initially
@@ -135,15 +128,16 @@ export default function ChannelPage({ channels }) {
     getMessages();
     if (creatingNewChannel) {
       const latestChannel = channels.length;
-      console.log(latestChannel);
       setChannelIndex(latestChannel - 1);
       setCreatingNewChannel(false);
     }
   }, [channels]);
 
   useEffect(() => {
-    getMessages();
-    sortMessagesDate(messages);
+    (async function renewMessages() {
+      await getMessages();
+      await sortMessagesDate(messages);
+    })();
   }, [channelIndex]);
 
   // get data every second
@@ -194,33 +188,59 @@ export default function ChannelPage({ channels }) {
             className="lg:mt-auto pt-8 px-4 overflow-y-scroll scrollbar-hidden"
           >
             {messages?.length ? (
-              messages?.map((item, index) => (
-                <div key={index}>
-                  {
-                    <div className="container flex items-center justify-center">
-                      <div className="h-[1px] grow m-auto bg-gray-600" />
-                      <span className="text-gray-600 text-sm px-4">
-                        {item?.date}
-                      </span>
-                      <div className="h-[1px] grow m-auto bg-gray-600" />
-                    </div>
-                  }
-                  {item?.messagesOnThisDay?.map((message, index) => (
-                    <div key={index} className="lg:container max-w-7xl">
-                      <Message
-                        name={message.user.name}
-                        image={message.user.image}
-                        date={message.createdAt}
-                        message={message.message}
-                      />
-                    </div>
-                  ))}
-                </div>
-              ))
+              <>
+                {messages?.map((item, index) => (
+                  <div key={index}>
+                    {
+                      <div className="container my-3 flex items-center justify-center">
+                        <div className="h-[1px] grow m-auto bg-gray-600" />
+                        <span className="text-gray-600 text-sm px-4">
+                          {item?.date}
+                        </span>
+                        <div className="h-[1px] grow m-auto bg-gray-600" />
+                      </div>
+                    }
+                    {item?.messagesOnThisDay?.map((message, index) => (
+                      <div key={index} className="lg:container max-w-7xl">
+                        <Message
+                          name={message.user.name}
+                          image={message.user.image}
+                          date={message.createdAt}
+                          message={message.message}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ))}
+
+                {sending && (
+                  <div className="lg:container max-w-7xl">
+                    <Message
+                      name={session.user.name}
+                      image={session.user.image}
+                      date={false}
+                      message={userInput}
+                    />
+                  </div>
+                )}
+              </>
             ) : (
-              <p className="text-center text-gray-500 mb-4">
-                Be the first to start this conversation
-              </p>
+              <>
+                {sending ? (
+                  <div className="lg:container max-w-7xl">
+                    <Message
+                      name={session.user.name}
+                      image={session.user.image}
+                      date={false}
+                      message={userInput}
+                    />
+                  </div>
+                ) : (
+                  <p className="text-center text-gray-500 mb-4">
+                    Be the first to start this conversation
+                  </p>
+                )}
+              </>
             )}
           </div>
         )}

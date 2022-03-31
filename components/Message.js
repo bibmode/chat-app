@@ -1,10 +1,8 @@
 import Image from "next/image";
-import { useEffect, useContext } from "react";
 import getDate from "../utils/getDate";
-import { AppContext } from "./Layout";
 
 const Message = ({ name, date, message }) => {
-  const newdate = getDate(date);
+  const newdate = date ? getDate(date) : "sending";
 
   return (
     <>
