@@ -95,7 +95,7 @@ const Drawer = ({ displayChannels, setDisplayChannels }) => {
             </div>
 
             {/* list of channels */}
-            <div className="w-full overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-500 scrollbar-track-zinc-700 scrollbar-thumb-rounded-full scrollbar-track-rounded-full mb-20">
+            <div className="w-full overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-800 scrollbar-thumb-rounded-full scrollbar-track-rounded-full mb-20">
               {displayChannels?.map((channel, index) => (
                 <button
                   key={channel.id}
