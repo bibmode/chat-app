@@ -24,6 +24,7 @@ const Layout = (props) => {
   const [dateBlockShow, setDateBlockShow] = useState(false);
   const [dateBlock, setDateBlock] = useState("");
   const [tempMessage, setTempMessage] = useState("");
+  const [channels, setChannels] = useState([]);
 
   const router = useRouter();
 
@@ -61,6 +62,8 @@ const Layout = (props) => {
           setLoading,
           tempMessage,
           setTempMessage,
+          channels,
+          setChannels,
         }}
       >
         <ToastContainer

@@ -5,9 +5,15 @@ import { AppContext } from "./Layout";
 import axios from "axios";
 import { useRouter } from "next/router";
 
-const ChannelModal = ({ channels }) => {
-  const { setModal, creatingNewChannel, setCreatingNewChannel, toast } =
-    useContext(AppContext);
+const ChannelModal = () => {
+  const {
+    setModal,
+    creatingNewChannel,
+    setCreatingNewChannel,
+    toast,
+    setChannels,
+    channels,
+  } = useContext(AppContext);
   const router = useRouter();
 
   const [disabled, setDisabled] = useState(false);
@@ -27,6 +33,7 @@ const ChannelModal = ({ channels }) => {
 
     if (res.status === 200) {
       refreshData();
+      setChannels(res.data.channels);
       setCreatingNewChannel(true);
     } else {
       toast.error("failed to add channel");

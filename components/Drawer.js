@@ -5,7 +5,7 @@ import { useContext, useState, useEffect } from "react";
 import { AppContext } from "./Layout";
 import ProfileBar from "./ProfileBar";
 
-const Drawer = ({ channels }) => {
+const Drawer = ({ displayChannels, setDisplayChannels }) => {
   const {
     setModal,
     drawerToggle,
@@ -13,11 +13,10 @@ const Drawer = ({ channels }) => {
     setDrawer,
     channelIndex,
     setChannelIndex,
+    channels,
   } = useContext(AppContext);
 
   const [members, setMembers] = useState(null);
-
-  const [displayChannels, setDisplayChannels] = useState(channels);
 
   const addUserToChannel = async (channelId) => {
     const res = await axios.patch("/api/user", { channelId });

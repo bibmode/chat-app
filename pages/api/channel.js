@@ -22,7 +22,9 @@ export default async function handler(req, res) {
         },
       });
 
-      res.status(200).json({ message: "channel added successfully" });
+      const channels = await prisma.channel.findMany();
+
+      res.status(200).json({ message: "channel added successfully", channels });
     } catch (error) {
       res.status(500).json({ message: "failed to create channel" });
     }
