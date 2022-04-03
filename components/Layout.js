@@ -25,7 +25,8 @@ const Layout = (props) => {
   const [dateBlock, setDateBlock] = useState("");
   const [tempMessage, setTempMessage] = useState("");
   const [channels, setChannels] = useState([]);
-
+  const [messages, setMessages] = useState(null);
+  const [sending, setSending] = useState(false);
   const router = useRouter();
 
   const refreshData = () => {
@@ -42,6 +43,8 @@ const Layout = (props) => {
         value={{
           drawer,
           setDrawer,
+          sending,
+          setSending,
           drawerToggle,
           setDrawerToggle,
           modal,
@@ -58,6 +61,8 @@ const Layout = (props) => {
           setDateBlockShow,
           dateBlock,
           setDateBlock,
+          messages,
+          setMessages,
           loading,
           setLoading,
           tempMessage,

@@ -5,7 +5,7 @@ import { AppContext } from "./Layout";
 import axios from "axios";
 import { useRouter } from "next/router";
 
-const ChannelModal = () => {
+const ChannelModal = ({ setDisplayChannels }) => {
   const {
     setModal,
     creatingNewChannel,
@@ -13,6 +13,9 @@ const ChannelModal = () => {
     toast,
     setChannels,
     channels,
+    messages,
+    setMessages,
+    setChannelIndex,
   } = useContext(AppContext);
   const router = useRouter();
 
@@ -32,9 +35,14 @@ const ChannelModal = () => {
     const res = await axios.post("/api/channel", { userName, description });
 
     if (res.status === 200) {
-      refreshData();
-      setChannels(res.data.channels);
-      setCreatingNewChannel(true);
+      await setCreatingNewChannel(true);
+      await setChannels(res.data.channels);
+      await setDisplayChannels(res.data.channels);
+
+      const latestChannel = await channels.length;
+      await setChannelIndex(latestChannel);
+      await setMessages([]);
+      await setCreatingNewChannel(false);
     } else {
       toast.error("failed to add channel");
     }

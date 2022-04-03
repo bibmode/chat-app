@@ -14,6 +14,7 @@ const Drawer = ({ displayChannels, setDisplayChannels }) => {
     channelIndex,
     setChannelIndex,
     channels,
+    setLoading,
   } = useContext(AppContext);
 
   const [members, setMembers] = useState(null);
@@ -21,12 +22,10 @@ const Drawer = ({ displayChannels, setDisplayChannels }) => {
   const addUserToChannel = async (channelId) => {
     const res = await axios.patch("/api/user", { channelId });
     console.log(res);
-    if (res?.data?.members?.length) {
-      setMembers(res.data.members);
-    }
+
+    res?.data?.members?.length && setMembers(res.data.members);
   };
 
-  // TODO: search channel functionality
   const searchChannels = (e) => {
     const foundItems = channels?.filter((item) =>
       item?.name?.toLowerCase().includes(e.target.value.toLowerCase())
@@ -43,8 +42,13 @@ const Drawer = ({ displayChannels, setDisplayChannels }) => {
     }
   };
 
-  const handleToggle = (index, channelId) => {
-    setChannelIndex(index);
+  const handleToggle = async (channelId) => {
+    // setSending(false);
+    // find the channel index with the same Id
+    const getOriginalIndex = channels
+      .map((channel) => channel.id === channelId && true)
+      .indexOf(true);
+    setChannelIndex(getOriginalIndex);
     addUserToChannel(channelId);
     setDrawerToggle(!drawerToggle);
   };
@@ -96,11 +100,11 @@ const Drawer = ({ displayChannels, setDisplayChannels }) => {
 
             {/* list of channels */}
             <div className="w-full overflow-y-scroll scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-800 scrollbar-thumb-rounded-full scrollbar-track-rounded-full mb-20">
-              {displayChannels?.map((channel, index) => (
+              {displayChannels?.map((channel) => (
                 <button
                   key={channel.id}
                   className="flex items-center mb-4 text-gray-50/80 uppercase text-md font-semibold w-full text-left"
-                  onClick={() => handleToggle(index, channel.id)}
+                  onClick={() => handleToggle(channel.id)}
                 >
                   <div className="w-10 h-10 bg-zinc-800 grid place-items-center rounded-lg mr-4 text-white">
                     <p>{channel.name[0]}</p>

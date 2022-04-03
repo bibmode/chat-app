@@ -49,7 +49,7 @@ export const getServerSideProps = async (ctx) => {
   };
 };
 
-export default function ChannelPage({ initialChannels }) {
+export default function ChannelPage({ initialChannels, initialMessages }) {
   const {
     drawer,
     setDrawer,
@@ -63,14 +63,18 @@ export default function ChannelPage({ initialChannels }) {
     setLoading,
     setChannels,
     channels,
+    messages,
+    setMessages,
+    sending,
+    setSending,
   } = useContext(AppContext);
 
   const { data: session } = useSession();
 
   const [userInput, setUserInput] = useState("");
-  const [messages, setMessages] = useState(null);
-  const [sending, setSending] = useState(false);
+
   const [displayChannels, setDisplayChannels] = useState(channels);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   const userInputField = useRef(null);
 
@@ -80,14 +84,38 @@ export default function ChannelPage({ initialChannels }) {
 
   // set channels on initial reload
   useEffect(() => {
-    setChannels(initialChannels);
-    setDisplayChannels(initialChannels);
+    (async () => {
+      if (initialLoad) {
+        console.log("initial channels");
+        await setChannels(initialChannels);
+        await setDisplayChannels(initialChannels);
+        await setInitialLoad(false);
+      }
+    })();
+
+    // if(channels)
   }, [initialChannels]);
+
+  useEffect(() => {
+    console.log("channels");
+    if (channels.length !== 0 && !creatingNewChannel) {
+      getMessages();
+    }
+  }, [channels]);
+
+  useEffect(() => {
+    console.log("channel index", creatingNewChannel, channelIndex);
+    if (!creatingNewChannel && !initialLoad) getMessages();
+  }, [channelIndex]);
+
+  useEffect(() => {
+    console.log(messages);
+  }, [messages]);
 
   // scroll down to div every new message added
   const scrollMessages = () => {
     const messagesDiv = document.getElementById("messages-div");
-    messagesDiv.scrollTo({
+    messagesDiv?.scrollTo({
       top: messagesDiv.scrollHeight, //scroll to the bottom of the element
       behavior: "smooth", //auto, smooth, initial, inherit
     });
@@ -95,80 +123,82 @@ export default function ChannelPage({ initialChannels }) {
 
   // retrieving messages loading
   const getMessages = async () => {
-    setLoading(true);
-    const messagesRes = await axios.get("/api/message", {
-      params: { channelId: channels[channelIndex]?.id },
-    });
-
-    const messagesData = (await messagesRes.data.length)
-      ? sortMessagesDate(messagesRes.data)
-      : [];
-
-    await setMessages(messagesData);
-    setLoading(false);
+    console.log("getMessages");
+    await setLoading(true);
+    await retrievingMessageData();
+    await setLoading(false);
+    await scrollMessages();
   };
 
   // retrieving messages without loading
-  const refreshedMessages = async () => {
+  const retrievingMessageData = async () => {
     const messagesRes = await axios.get("/api/message", {
       params: { channelId: channels[channelIndex]?.id },
     });
 
-    const messagesData = (await messagesRes.data.length)
+    const messagesData = messagesRes.data.length
       ? sortMessagesDate(messagesRes.data)
       : [];
-
-    console.log(messagesData);
 
     await setMessages(messagesData);
   };
 
   // sending messages
-  const handleMessageSubmit = async (e) => {
+  const handleMessageSubmit = async (channelIndexAtTheTime) => {
+    console.log("handleMessageSubmit", channelIndexAtTheTime);
+
     setSending(true);
     userInputField.current.value = "";
 
     if (userInput.trim().length) {
       const res = await axios.post("/api/message", {
         message: userInput,
-        channelId: channels[channelIndex]?.id,
+        channelId: channels[channelIndexAtTheTime]?.id,
       });
 
       if (res.status !== 200) {
         toast.error("failed to send message");
-      } else {
-        await refreshedMessages();
-        await scrollMessages();
       }
+
       await setUserInput("");
-      await setSending(false);
     }
 
+    await setSending(false);
     return;
   };
 
-  // show display channels with the new added channel
   useEffect(() => {
-    if (creatingNewChannel) {
-      const latestChannel = channels.length;
-      setChannelIndex(latestChannel - 1);
-      setDisplayChannels(channels);
-      setCreatingNewChannel(false);
-    }
-  }, [channels]);
+    sending && scrollMessages();
+  }, [sending]);
 
-  // get messages every toggle and modification of channel
-  useEffect(() => {
-    (async function renewMessages() {
-      await getMessages();
-    })();
-  }, [channelIndex, channels]);
+  // // show display channels with the new added channel
+  // useEffect(() => {
+  //   console.log("channels 1");
+
+  //   if (creatingNewChannel) {
+  //     // const latestChannel = channels.length;
+  //     // setChannelIndex(latestChannel - 1);
+  //     setDisplayChannels(channels);
+  //     // setMessages([]);
+  //     // setCreatingNewChannel(false);
+  //   }
+  // }, [channels]);
+
+  // // get messages every toggle and modification of channel
+  // useEffect(() => {
+  //   (async function renewMessages() {
+  //     console.log("channels 2");
+  //     await getMessages();
+  //   })();
+  // }, [channels]);
 
   // get data every second
   useEffect(() => {
     const interval = setInterval(async () => {
-      !loading && !creatingNewChannel && refreshedMessages();
-    }, 10000);
+      if (!loading && !creatingNewChannel && !sending && !initialLoad)
+        await retrievingMessageData();
+    }, 1000);
+
     return () => clearInterval(interval);
   }, [channelIndex]);
 
@@ -181,7 +211,7 @@ export default function ChannelPage({ initialChannels }) {
           <link rel="icon" href="/favicon.ico" />
         </Head>
 
-        {modal && <ChannelModal />}
+        {modal && <ChannelModal setDisplayChannels={setDisplayChannels} />}
 
         {drawer && (
           <Drawer
@@ -205,7 +235,7 @@ export default function ChannelPage({ initialChannels }) {
           </div>
 
           {/* loading & conversation section */}
-          {loading ? (
+          {loading || !messages ? (
             <div className="text-blue-500 text-4xl container grid place-items-center mt-12 mb-auto">
               <Icon icon="eos-icons:loading" />
             </div>
@@ -284,12 +314,14 @@ export default function ChannelPage({ initialChannels }) {
                 autoComplete="off"
                 ref={userInputField}
                 onChange={(e) => setUserInput(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleMessageSubmit(e)}
+                onKeyPress={(e) =>
+                  e.key === "Enter" && handleMessageSubmit(channelIndex)
+                }
               />
               <button
                 className="text-white text-xl bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed w-9 h-9 rounded-lg grid place-content-center"
                 disabled={!userInput.trim().length}
-                onClick={(e) => handleMessageSubmit(e)}
+                onClick={(e) => handleMessageSubmit(channelIndex)}
               >
                 <Icon icon="fe:paper-plane" />
               </button>
