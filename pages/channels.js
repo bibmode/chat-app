@@ -165,6 +165,8 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
 
       if (res.status !== 200) {
         toast.error("failed to send message");
+      } else {
+        await retrievingMessageData();
       }
 
       await setUserInput("");
