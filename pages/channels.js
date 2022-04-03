@@ -169,12 +169,14 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
 
       if (res.status !== 200) {
         toast.error("failed to send message");
+      } else {
+        retrievingMessageData();
+        setSending(false);
       }
 
       await setUserInput("");
     }
 
-    await setSending(false);
     return;
   };
 
@@ -182,43 +184,23 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
     scrollMessages();
   }, [sending]);
 
-  // // show display channels with the new added channel
-  // useEffect(() => {
-  //   console.log("channels 1")
-
-  //   if (creatingNewChannel) {
-  //     // const latestChannel = channels.length;
-  //     // setChannelIndex(latestChannel - 1);
-  //     setDisplayChannels(channels);
-  //     // setMessages([]);
-  //     // setCreatingNewChannel(false);
-  //   }
-  // }, [channels]);
-
-  // // get messages every toggle and modification of channel
-  // useEffect(() => {
-  //   (async function renewMessages() {
-  //     console.log("channels 2");
-  //     await getMessages();
-  //   })();
-  // }, [channels]);
-
-  // useEffect(() => {
-  //   console.log("channel index", creatingNewChannel, channelIndex);
-  //   if (!creatingNewChannel && !initialLoad && switchingChannels) getMessages();
-
-  //   setSwitchingChannels(false);
-  // }, [channelIndex]);
-
   // get data every second
   useEffect(() => {
     console.log("channel index", creatingNewChannel, channelIndex);
 
-    getMessages();
+    if (switchingChannels) {
+      getMessages();
+      setSwitchingChannels(false);
+    }
 
-    const interval = setInterval(async () => {
-      if (!loading && !creatingNewChannel && !initialLoad) {
-        await retrievingMessageData();
+    const interval = setInterval(() => {
+      if (
+        !loading &&
+        !creatingNewChannel &&
+        !initialLoad &&
+        !switchingChannels
+      ) {
+        retrievingMessageData();
       }
     }, 1000);
 
