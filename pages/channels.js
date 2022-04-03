@@ -9,6 +9,7 @@ import { getSession, useSession } from "next-auth/react";
 import { prisma } from "../lib/prisma";
 import axios from "axios";
 import sortMessagesDate from "../utils/sortMessagesDate";
+import MessageLoader from "../components/loaders/MessageLoader";
 
 export const getServerSideProps = async (ctx) => {
   const session = await getSession(ctx);
@@ -96,10 +97,21 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
     // if(channels)
   }, [initialChannels]);
 
+  const createChannel = async () => {
+    const latestChannel = await channels.length;
+    await setChannelIndex(latestChannel - 1);
+    await setMessages([]);
+    await setCreatingNewChannel(false);
+  };
+
   useEffect(() => {
     console.log("channels");
     if (channels.length !== 0 && !creatingNewChannel) {
       getMessages();
+    }
+
+    if (creatingNewChannel) {
+      createChannel();
     }
   }, [channels]);
 
@@ -168,7 +180,7 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
   };
 
   useEffect(() => {
-    sending && scrollMessages();
+    scrollMessages();
   }, [sending]);
 
   // // show display channels with the new added channel
@@ -194,8 +206,10 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
 
   // get data every second
   useEffect(() => {
+    console.log("channel index", creatingNewChannel, channelIndex);
+
     const interval = setInterval(async () => {
-      if (!loading && !creatingNewChannel && !sending && !initialLoad)
+      if (!loading && !creatingNewChannel && !initialLoad)
         await retrievingMessageData();
     }, 1000);
 
@@ -236,8 +250,12 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
 
           {/* loading & conversation section */}
           {loading || !messages ? (
-            <div className="text-blue-500 text-4xl container grid place-items-center mt-12 mb-auto">
-              <Icon icon="eos-icons:loading" />
+            // <div className="text-blue-500 text-4xl container grid place-items-center mt-12 mb-auto">
+            <div className="lg:mt-auto pt-8 px-4 lg:px-8 scrollbar-hidden">
+              {/* <Icon icon="eos-icons:loading" /> */}
+              {[1, 2, 3, 4, 5, 6, 7].map((item) => (
+                <MessageLoader key={item} />
+              ))}
             </div>
           ) : (
             <div
@@ -273,8 +291,8 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
                   {sending && (
                     <div className="lg:container max-w-7xl">
                       <Message
-                        name={session.user.name}
-                        image={session.user.image}
+                        name={session?.user?.name}
+                        image={session?.user?.image}
                         date={false}
                         message={userInput}
                       />
@@ -286,8 +304,8 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
                   {sending ? (
                     <div className="lg:container max-w-7xl">
                       <Message
-                        name={session.user.name}
-                        image={session.user.image}
+                        name={session?.user?.name}
+                        image={session?.user?.image}
                         date={false}
                         message={userInput}
                       />

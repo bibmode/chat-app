@@ -38,11 +38,6 @@ const ChannelModal = ({ setDisplayChannels }) => {
       await setCreatingNewChannel(true);
       await setChannels(res.data.channels);
       await setDisplayChannels(res.data.channels);
-
-      const latestChannel = await channels.length;
-      await setChannelIndex(latestChannel);
-      await setMessages([]);
-      await setCreatingNewChannel(false);
     } else {
       toast.error("failed to add channel");
     }

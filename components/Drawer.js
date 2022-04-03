@@ -3,6 +3,7 @@ import axios from "axios";
 import Image from "next/image";
 import { useContext, useState, useEffect } from "react";
 import { AppContext } from "./Layout";
+import MembersLoader from "./loaders/MembersLoader";
 import ProfileBar from "./ProfileBar";
 
 const Drawer = ({ displayChannels, setDisplayChannels }) => {
@@ -18,12 +19,17 @@ const Drawer = ({ displayChannels, setDisplayChannels }) => {
   } = useContext(AppContext);
 
   const [members, setMembers] = useState(null);
+  const [membersLoader, setMembersLoader] = useState(false);
 
   const addUserToChannel = async (channelId) => {
+    await setMembersLoader(true);
     const res = await axios.patch("/api/user", { channelId });
     console.log(res);
 
-    res?.data?.members?.length && setMembers(res.data.members);
+    if (res?.data?.members?.length) {
+      await setMembers(res.data.members);
+      await setMembersLoader(false);
+    }
   };
 
   const searchChannels = (e) => {
@@ -140,22 +146,30 @@ const Drawer = ({ displayChannels, setDisplayChannels }) => {
 
             {/* list of memebrs */}
             <h2 className="text-gray-50 font-semibold pb-6">MEMBERS</h2>
-            {members?.map((member, index) => (
-              <div
-                key={index}
-                className="flex items-center mb-4 text-gray-50/80 uppercase text-md font-semibold"
-              >
-                <div className="relative overflow-hidden w-10 h-10 bg-gray-800 grid place-items-center rounded-lg mr-4 text-white">
-                  <Image
-                    src={member.image}
-                    alt="profile"
-                    layout="fill"
-                    objectFit="cover"
-                  />
-                </div>
-                <h3>{member.name}</h3>
+            {membersLoader ? (
+              <div>
+                {[1, 2, 3].map((item) => (
+                  <MembersLoader key={item} />
+                ))}
               </div>
-            ))}
+            ) : (
+              members?.map((member, index) => (
+                <div
+                  key={index}
+                  className="flex items-center mb-4 text-gray-50/80 uppercase text-md font-semibold"
+                >
+                  <div className="relative overflow-hidden w-10 h-10 bg-gray-800 grid place-items-center rounded-lg mr-4 text-white">
+                    <Image
+                      src={member.image}
+                      alt="profile"
+                      layout="fill"
+                      objectFit="cover"
+                    />
+                  </div>
+                  <h3>{member.name}</h3>
+                </div>
+              ))
+            )}
 
             {/* profile bar */}
             <ProfileBar />
