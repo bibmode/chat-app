@@ -194,7 +194,9 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
       <div className="lg:overflow-y-scroll lg:h-screen lg:flex scrollbar-hidden">
         <Head>
           <title>{`Chat App ${
-            channels ? "| " + channels[channelIndex]?.name.toUpperCase() : ""
+            channels && channels[channelIndex]
+              ? "| " + channels[channelIndex]?.name.toUpperCase()
+              : ""
           }`}</title>
           <meta
             name="description"
