@@ -169,13 +169,11 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
 
       if (res.status !== 200) {
         toast.error("failed to send message");
-      } else {
-        retrievingMessageData();
-        setSending(false);
       }
 
       await setUserInput("");
     }
+    await setSending(false);
 
     return;
   };
@@ -194,12 +192,7 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
     }
 
     const interval = setInterval(() => {
-      if (
-        !loading &&
-        !creatingNewChannel &&
-        !initialLoad &&
-        !switchingChannels
-      ) {
+      if (!loading && !creatingNewChannel && !initialLoad && !sending) {
         retrievingMessageData();
       }
     }, 1000);
@@ -228,7 +221,7 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
           />
         )}
 
-        <div className="relative pt-16 lg:pt-0 pb-20 lg:pb-0 mx-auto bg-zinc-800 min-h-screen w-full lg:flex lg:flex-col">
+        <div className="relative pt-16 lg:pt-0 pb-20 lg:pb-0 mx-auto bg-zinc-800 min-h-screen w-full flex flex-col">
           {/* top bar */}
           <div className="fixed z-30 lg:sticky text-gray-50 top-0 left-0 w-full lg:w-auto bg-zinc-800 drop-shadow-lg p-4">
             <div className="lg:container max-w-7xl flex">
@@ -245,7 +238,7 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
           {/* loading & conversation section */}
           {loading ? (
             // <div className="text-blue-500 text-4xl container grid place-items-center mt-12 mb-auto">
-            <div className="lg:mt-auto pt-8 px-4 lg:px-8 scrollbar-hidden">
+            <div className="mt-auto pt-8 px-4 lg:px-8 scrollbar-hidden">
               {/* <Icon icon="eos-icons:loading" /> */}
               {[1, 2, 3, 4, 5, 6, 7].map((item) => (
                 <MessageLoader key={item} />
@@ -254,7 +247,7 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
           ) : (
             <div
               id="messages-div"
-              className="lg:mt-auto pt-8 px-4 overflow-y-scroll scrollbar-hidden"
+              className="mt-auto pt-8 px-4 overflow-y-scroll scrollbar-hidden"
             >
               {messages?.length > 0 ? (
                 <>

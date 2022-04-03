@@ -76,7 +76,7 @@ const Drawer = ({ displayChannels, setDisplayChannels, getMessages }) => {
 
   return (
     <>
-      <div className="fixed lg:relative lg:static px-5 z-30 w-5/6 max-w-[338px] h-screen bg-zinc-900">
+      <div className="fixed pt-16 lg:pt-0 lg:relative lg:static px-5 z-30 w-5/6 max-w-[338px] h-screen bg-zinc-900">
         {drawerToggle ? (
           <div className="flex flex-col h-screen">
             {/* channels */}
