@@ -73,6 +73,15 @@ const Drawer = ({ displayChannels, setDisplayChannels, getMessages }) => {
     setModal(true);
   };
 
+  const getInitials = (channelName) => {
+    const wordArr = channelName.split(" ");
+
+    const initials = wordArr.map((word, index) => {
+      if (index < 2) return word[0].toUpperCase();
+    });
+    return initials?.join("");
+  };
+
   return (
     <>
       <div className="fixed pt-16 lg:pt-0 lg:relative lg:static px-5 z-30 w-5/6 max-w-[338px] h-screen bg-zinc-900">
@@ -114,7 +123,7 @@ const Drawer = ({ displayChannels, setDisplayChannels, getMessages }) => {
                   onClick={() => handleToggle(channel.id)}
                 >
                   <div className="w-10 h-10 bg-zinc-800 grid place-items-center rounded-lg mr-4 text-white">
-                    <p>{channel.name[0]}</p>
+                    <p>{getInitials(channel.name)}</p>
                   </div>
 
                   <h3 className="grow inline-block uppercase">
