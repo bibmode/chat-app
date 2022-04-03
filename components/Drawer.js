@@ -25,7 +25,6 @@ const Drawer = ({ displayChannels, setDisplayChannels, getMessages }) => {
   const addUserToChannel = async (channelId) => {
     await setMembersLoader(true);
     const res = await axios.patch("/api/user", { channelId });
-    console.log(res);
 
     if (res?.data?.members?.length) {
       await setMembers(res.data.members);

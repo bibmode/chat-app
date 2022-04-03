@@ -30,7 +30,6 @@ export const getServerSideProps = async (ctx) => {
     },
   });
   const initialChannels = await JSON.parse(JSON.stringify(channelRes));
-  // console.log(initialChannels);
 
   const messagesRes = await prisma.channel.findFirst({
     where: { id: initialChannels[0].id },
@@ -40,7 +39,6 @@ export const getServerSideProps = async (ctx) => {
   });
 
   const initialMessages = await JSON.parse(JSON.stringify(messagesRes));
-  console.log(initialMessages);
 
   return {
     props: {
@@ -89,7 +87,6 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
   useEffect(() => {
     (async () => {
       if (initialLoad) {
-        console.log("initial channels");
         await setChannels(initialChannels);
         await setDisplayChannels(initialChannels);
         await setInitialLoad(false);
@@ -107,7 +104,6 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
   };
 
   useEffect(() => {
-    console.log("channels");
     if (channels.length !== 0 && !creatingNewChannel) {
       getMessages();
     }
@@ -116,10 +112,6 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
       createChannel();
     }
   }, [channels]);
-
-  useEffect(() => {
-    console.log(messages);
-  }, [messages]);
 
   // scroll down to div every new message added
   const scrollMessages = () => {
@@ -132,7 +124,6 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
 
   // retrieving messages loading
   const getMessages = async () => {
-    console.log("getMessages");
     await setLoading(true);
     await retrievingMessageData();
     await setLoading(false);
@@ -156,8 +147,6 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
 
   // sending messages
   const handleMessageSubmit = async (channelIndexAtTheTime) => {
-    console.log("handleMessageSubmit", channelIndexAtTheTime);
-
     setSending(true);
     userInputField.current.value = "";
 
@@ -184,8 +173,6 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
 
   // get data every second
   useEffect(() => {
-    console.log("channel index", creatingNewChannel, channelIndex);
-
     if (switchingChannels) {
       getMessages();
       setSwitchingChannels(false);

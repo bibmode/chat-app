@@ -8,11 +8,8 @@ export default async function handler(req, res) {
     return res.status(401).json({ message: "Unauthorized." });
   }
 
-  console.log(session);
-
   if (req.method === "PATCH") {
     const { channelId } = req.body;
-    console.log(channelId);
     let isUserAMember;
 
     try {
@@ -24,14 +21,10 @@ export default async function handler(req, res) {
         },
       });
 
-      console.log(members);
-
       if (members.length) {
         isUserAMember = await members.filter(
           (member) => member.email === session.user.email
         );
-
-        console.log(isUserAMember, members);
       } else {
         await prisma.channel.update({
           where: { id: channelId },
