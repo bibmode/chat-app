@@ -25,12 +25,12 @@ export const getServerSideProps = async (ctx) => {
 export default function Home() {
   const signInGoogle = () => {
     signIn("google")
-      .then((error) => signInError())
+      .then((error) => console.log(error))
       .catch((error) => signInError());
   };
   const signInGithub = () => {
     signIn("github")
-      .then((error) => signInError())
+      .then((error) => console.log(error))
       .catch((error) => signInError());
   };
 
