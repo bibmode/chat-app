@@ -116,11 +116,6 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
   }, [channels]);
 
   useEffect(() => {
-    console.log("channel index", creatingNewChannel, channelIndex);
-    if (!creatingNewChannel && !initialLoad) getMessages();
-  }, [channelIndex]);
-
-  useEffect(() => {
     console.log(messages);
   }, [messages]);
 
@@ -204,6 +199,11 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
   //   })();
   // }, [channels]);
 
+  useEffect(() => {
+    console.log("channel index", creatingNewChannel, channelIndex);
+    if (!creatingNewChannel && !initialLoad) getMessages();
+  }, [channelIndex]);
+
   // get data every second
   useEffect(() => {
     console.log("channel index", creatingNewChannel, channelIndex);
@@ -212,6 +212,8 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
       if (!loading && !creatingNewChannel && !initialLoad)
         await retrievingMessageData();
     }, 1000);
+
+    if (loading) clearInterval(interval);
 
     return () => clearInterval(interval);
   }, [channelIndex]);
