@@ -68,6 +68,8 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
     setMessages,
     sending,
     setSending,
+    setSwitchingChannels,
+    switchingChannels,
   } = useContext(AppContext);
 
   const { data: session } = useSession();
@@ -139,6 +141,7 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
 
   // retrieving messages without loading
   const retrievingMessageData = async () => {
+    // if (!switchingChannels) {
     const messagesRes = await axios.get("/api/message", {
       params: { channelId: channels[channelIndex]?.id },
     });
@@ -148,6 +151,7 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
       : [];
 
     await setMessages(messagesData);
+    // }
   };
 
   // sending messages
@@ -165,8 +169,6 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
 
       if (res.status !== 200) {
         toast.error("failed to send message");
-      } else {
-        await retrievingMessageData();
       }
 
       await setUserInput("");
@@ -182,7 +184,7 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
 
   // // show display channels with the new added channel
   // useEffect(() => {
-  //   console.log("channels 1");
+  //   console.log("channels 1")
 
   //   if (creatingNewChannel) {
   //     // const latestChannel = channels.length;
@@ -201,18 +203,23 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
   //   })();
   // }, [channels]);
 
-  useEffect(() => {
-    console.log("channel index", creatingNewChannel, channelIndex);
-    if (!creatingNewChannel && !initialLoad) getMessages();
-  }, [channelIndex]);
+  // useEffect(() => {
+  //   console.log("channel index", creatingNewChannel, channelIndex);
+  //   if (!creatingNewChannel && !initialLoad && switchingChannels) getMessages();
+
+  //   setSwitchingChannels(false);
+  // }, [channelIndex]);
 
   // get data every second
   useEffect(() => {
     console.log("channel index", creatingNewChannel, channelIndex);
 
+    getMessages();
+
     const interval = setInterval(async () => {
-      if (!loading && !creatingNewChannel && !initialLoad)
+      if (!loading && !creatingNewChannel && !initialLoad) {
         await retrievingMessageData();
+      }
     }, 1000);
 
     if (loading) clearInterval(interval);
@@ -235,6 +242,7 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
           <Drawer
             displayChannels={displayChannels}
             setDisplayChannels={setDisplayChannels}
+            getMessages={getMessages}
           />
         )}
 
@@ -253,7 +261,7 @@ export default function ChannelPage({ initialChannels, initialMessages }) {
           </div>
 
           {/* loading & conversation section */}
-          {loading || !messages ? (
+          {loading ? (
             // <div className="text-blue-500 text-4xl container grid place-items-center mt-12 mb-auto">
             <div className="lg:mt-auto pt-8 px-4 lg:px-8 scrollbar-hidden">
               {/* <Icon icon="eos-icons:loading" /> */}

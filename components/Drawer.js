@@ -6,7 +6,7 @@ import { AppContext } from "./Layout";
 import MembersLoader from "./loaders/MembersLoader";
 import ProfileBar from "./ProfileBar";
 
-const Drawer = ({ displayChannels, setDisplayChannels }) => {
+const Drawer = ({ displayChannels, setDisplayChannels, getMessages }) => {
   const {
     setModal,
     drawerToggle,
@@ -15,7 +15,8 @@ const Drawer = ({ displayChannels, setDisplayChannels }) => {
     channelIndex,
     setChannelIndex,
     channels,
-    setLoading,
+    switchingChannels,
+    setSwitchingChannels,
   } = useContext(AppContext);
 
   const [members, setMembers] = useState(null);
@@ -54,6 +55,7 @@ const Drawer = ({ displayChannels, setDisplayChannels }) => {
     const getOriginalIndex = channels
       .map((channel) => channel.id === channelId && true)
       .indexOf(true);
+    setSwitchingChannels(true);
     setChannelIndex(getOriginalIndex);
     addUserToChannel(channelId);
     setDrawerToggle(!drawerToggle);
